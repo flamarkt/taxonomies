@@ -1,0 +1,46 @@
+{
+    "name": "flamarkt/taxonomies",
+    "description": "Taxonomies for discussions, users and products.",
+    "keywords": [
+        "flarum",
+        "flamarkt",
+        "marketplace",
+        "taxonomies"
+    ],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "require": {
+        "flarum/core": "^0.1.0-beta.16",
+        "flamarkt/core": "^0.1.0"
+    },
+    "authors": [
+        {
+            "name": "Flamarkt",
+            "homepage": "https://flamarkt.org/"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/clarkwinkelmann/flamarkt/taxonomies/issues",
+        "source": "https://github.com/clarkwinkelmann/flamarkt/taxonomies"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flamarkt\\Taxonomies\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Taxonomies",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-tags",
+                "backgroundColor": "#684ba6",
+                "color": "#fff"
+            },
+            "optional-dependencies": [
+                "fof/transliterator",
+                "fof/user-directory"
+            ]
+        }
+    }
+}

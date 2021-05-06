@@ -1,0 +1,28 @@
+.TaxonomyTabs {
+    border-bottom: 2px solid @control-bg;
+    padding-top: 10px;
+
+    .TaxonomyTab {
+        cursor: pointer;
+        display: inline-block;
+        background: none;
+        border: none;
+        padding: 10px 20px;
+        color: @muted-color;
+        border-radius: @border-radius @border-radius 0 0;
+
+        .Button {
+            margin: -10px -15px -10px -8px;
+        }
+
+        &:hover, &.active {
+            background: @control-bg;
+        }
+    }
+
+    .sortable-placeholder {
+        display: inline-block;
+        padding: 10px 20px;
+        width: 100px;
+    }
+}

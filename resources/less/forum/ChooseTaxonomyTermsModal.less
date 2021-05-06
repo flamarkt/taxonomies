@@ -1,0 +1,166 @@
+// Based on Flarum's TagDiscussionModal.less
+
+.ChooseTaxonomyTermsModal {
+    @media @tablet-up {
+        .Modal-header {
+            background: @control-bg;
+            padding: 20px 20px 0;
+
+            h3 {
+                text-align: left;
+                color: @control-color;
+                font-size: 16px;
+            }
+        }
+    }
+
+    .Modal-body {
+        padding: 20px;
+
+        @media @phone {
+            padding: 15px;
+        }
+    }
+
+    .Modal-footer {
+        padding: 1px 0 0;
+        text-align: left;
+    }
+}
+
+@media @tablet, @desktop, @desktop-hd {
+    .ChooseTaxonomyTermsModal-form {
+        display: table;
+        width: 100%;
+    }
+
+    .ChooseTaxonomyTermsModal-form-input {
+        display: table-cell;
+        width: 100%;
+        vertical-align: top;
+    }
+
+    .ChooseTaxonomyTermsModal-form-submit {
+        display: table-cell;
+        padding-left: 15px;
+    }
+}
+
+.TermsInput {
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    input {
+        display: inline;
+        outline: none;
+        margin-top: -2px;
+        border: 0 !important;
+        padding: 0;
+        flex: 1;
+        background: transparent !important;
+    }
+}
+
+.TermsInput-term {
+    cursor: not-allowed;
+    padding-top: 6px;
+    margin-right: 5px;
+
+    &:last-of-type {
+        margin-right: 10px;
+    }
+}
+
+.SelectTermList {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    overflow: auto;
+    max-height: 50vh;
+
+    @media @phone {
+        max-height: none;
+    }
+}
+
+.SelectTermListItem {
+    padding: 7px 20px;
+    overflow: hidden;
+    cursor: pointer;
+
+    &.active {
+        background: @control-bg;
+    }
+
+    .icon::before {
+        display: inline-block;
+        width: 16px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    &.selected {
+        .icon::before {
+            .fa();
+            content: @fa-var-check !important;
+            color: @muted-color;
+            font-size: 14px;
+            text-align: center;
+            vertical-align: 1px;
+        }
+
+        &.colored .TaxonomyIcon:before {
+            color: #fff;
+        }
+    }
+
+    .TaxonomyIcon {
+        vertical-align: top;
+        margin-top: 3px;
+        margin-left: 0;
+    }
+}
+
+.SelectTermListItem-name {
+    display: inline-block;
+    margin-right: 10px;
+    margin-left: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+
+    @media @phone {
+        width: auto;
+    }
+
+    .SelectTermList--with-descriptions & {
+        width: 150px;
+    }
+}
+
+.SelectTermListItem-description {
+    color: @muted-color;
+    font-size: 12px;
+    width: 370px;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 2px;
+
+    @media @phone {
+        display: none;
+    }
+}
+
+.SelectTermListItem mark {
+    font-weight: bold;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+}
