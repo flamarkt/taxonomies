@@ -41,6 +41,10 @@
                 "fof/transliterator",
                 "fof/user-directory"
             ]
+        },
+        "flamarkt-backoffice": {
+            "settingsInBackoffice": true,
+            "showInBackoffice": true
         }
     }
 }

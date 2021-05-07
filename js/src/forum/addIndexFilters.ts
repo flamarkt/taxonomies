@@ -11,7 +11,7 @@ export default function () {
             if (!taxonomy.canSearchDiscussions() || !taxonomy.showFilter()) {
                 return;
             }
-            console.log('filter', app.search.params());
+
             items.add('taxonomy-' + taxonomy.slug(), TaxonomyDropdown.component({
                 taxonomy,
                 activeTermSlug: app.search.params()[taxonomy.slug()],
