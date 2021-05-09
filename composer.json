@@ -20,8 +20,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/clarkwinkelmann/flamarkt/taxonomies/issues",
-        "source": "https://github.com/clarkwinkelmann/flamarkt/taxonomies"
+        "issues": "https://github.com/flamarkt/taxonomies/issues",
+        "source": "https://github.com/flamarkt/taxonomies"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +34,7 @@
             "category": "feature",
             "icon": {
                 "name": "fas fa-tags",
-                "backgroundColor": "#684ba6",
+                "backgroundColor": "#266a13",
                 "color": "#fff"
             },
             "optional-dependencies": [
