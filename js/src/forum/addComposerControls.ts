@@ -125,18 +125,4 @@ export default function () {
         data.relationships = data.relationships || {};
         data.relationships.taxonomies = taxonomyData;
     });
-
-    /**
-     * The way Flarum parses relationships inside of the save() method prevents us from saving data alongside the relation
-     * To work around this, we override this method that will allow us to pass down raw objects directly in the model during save
-     */
-    override(Model, 'getIdentifier', function (original, model) {
-        if (model.verbatim) {
-            delete model.verbatim;
-
-            return model;
-        }
-
-        return original(model);
-    });
 }
