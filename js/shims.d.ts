@@ -3,6 +3,14 @@ import Mithril, {Component} from 'mithril';
 
 declare global {
     const m: Mithril.Static;
+
+    interface FlarumExports {
+        extensions: {
+            [id: string]: any,
+        }
+    }
+
+    const flarum: FlarumExports
 }
 
 import ForumApplication from 'flarum/forum/ForumApplication';
@@ -17,14 +25,6 @@ interface AdditionalApplication {
 
 declare global {
     const app: ForumApplication & AdminApplication & AdditionalApplication;
-}
-
-// Fix wrong signatures from Flarum
-declare module 'flarum/common/Translator' {
-    export default interface Translator {
-        // Make second parameter optional
-        trans(id: any, parameters?: any): any;
-    }
 }
 
 import Taxonomy from './src/common/models/Taxonomy';

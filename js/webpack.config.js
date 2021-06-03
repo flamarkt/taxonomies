@@ -14,12 +14,4 @@ config.externals.push(function (context, request, callback) {
     callback();
 });
 
-
-// Enable Typescript same way as Flarum Core
-config.resolve = {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
-}
-config.module.rules[0].test = /\.(tsx?|js)$/;
-config.module.rules[0].use.options.presets.push('@babel/preset-typescript');
-
 module.exports = config;

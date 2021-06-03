@@ -1,5 +1,7 @@
 import sortable from 'html5sortable/dist/html5sortable.es.js';
 
+import {Vnode} from 'mithril';
+import {ComponentAttrs} from 'flarum/common/Component';
 import Page from 'flarum/common/components/Page';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
@@ -13,7 +15,7 @@ export default class TaxonomiesPage extends Page {
     tabIndex: number = 0;
     taxonomies: Taxonomy[] | null = null;
 
-    oninit(vnode) {
+    oninit(vnode: Vnode<ComponentAttrs, this>) {
         super.oninit(vnode);
 
         app.request({
@@ -30,6 +32,7 @@ export default class TaxonomiesPage extends Page {
             this.taxonomies === null ? LoadingIndicator.component({}) : [
                 m('h2', app.translator.trans('flamarkt-taxonomies.admin.page.title')),
                 m('.TaxonomyTabs', {
+                    //TODO: mithril v2
                     config: element => {
                         sortable(element, {
                             selector: '.js-sort-taxonomy-item',
@@ -91,7 +94,7 @@ export default class TaxonomiesPage extends Page {
                         icon: 'fas fa-plus',
                         onclick: () => {
                             app.modal.show(EditTaxonomyModal, {
-                                onsave: taxonomy => {
+                                onsave: (taxonomy: Taxonomy) => {
                                     this.taxonomies = sortTaxonomies([...this.taxonomies, taxonomy]);
                                     this.tabIndex = this.taxonomies.findIndex(t => t === taxonomy);
                                 },

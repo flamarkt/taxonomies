@@ -1,7 +1,7 @@
 import {extend} from 'flarum/common/extend';
 import icon from 'flarum/common/helpers/icon';
-
-/* global flarum */
+import ItemList from 'flarum/common/utils/ItemList';
+import Term from '../common/models/Term';
 
 export default function () {
     // Verify User Directory is enabled and exports all the classes we need
@@ -18,18 +18,16 @@ export default function () {
     // Class must be defined here because it needs to extend the base class
     // Which might not be available yet when imports are resolved
     class TaxonomyTermType extends flarum.extensions['fof-user-directory'].searchTypes.AbstractType {
-        constructor() {
-            super();
-
-            this.allTerms = null;
-            this.loadingAllTermsPromise = null;
-        }
+        allTerms: Term[] | null = null
+        loadingAllTermsPromise: Promise<void> | null = null
+        loading: boolean = false
+        suggestions: Term[] = []
 
         resourceType() {
             return 'flamarkt-taxonomy-terms';
         }
 
-        search(query) {
+        search(query: string) {
             this.loading = true;
 
             this.loadTerms().then(() => {
@@ -65,7 +63,7 @@ export default function () {
 
             this.allTerms = [];
 
-            const promises = [];
+            const promises: Promise<void>[] = [];
 
             app.store.all('flamarkt-taxonomies').forEach(taxonomy => {
                 if (!taxonomy.canSearchUsers() || !taxonomy.showFilter()) {
@@ -78,7 +76,7 @@ export default function () {
                 }).then(result => {
                     const terms = app.store.pushPayload(result);
 
-                    terms.forEach(term => {
+                    terms.forEach((term: Term) => {
                         term.pushData({
                             relationships: {
                                 taxonomy,
@@ -97,11 +95,11 @@ export default function () {
             });
         }
 
-        renderKind(term) {
+        renderKind(term: Term) {
             return term.taxonomy().name();
         }
 
-        renderLabel(term) {
+        renderLabel(term: Term) {
             return m('.UserDirectorySearchLabel', term.color() ? {
                 className: 'colored',
                 style: {
@@ -154,7 +152,7 @@ export default function () {
         }
     }
 
-    extend(flarum.extensions['fof-user-directory'].components.SearchField.prototype, 'filterTypes', function (items) {
+    extend(flarum.extensions['fof-user-directory'].components.SearchField.prototype, 'filterTypes', function (items: ItemList) {
         items.add('flamarkt-taxonomies', new TaxonomyTermType(), 15);
     });
 }

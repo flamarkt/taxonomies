@@ -5,6 +5,7 @@ namespace Flamarkt\Taxonomies\Api\Controller;
 use Flamarkt\Taxonomies\Api\Serializer\TaxonomySerializer;
 use Flamarkt\Taxonomies\Repositories\TaxonomyRepository;
 use Flarum\Api\Controller\AbstractCreateController;
+use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -22,7 +23,7 @@ class TaxonomyStoreController extends AbstractCreateController
 
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        RequestUtil::getActor($request)->assertAdmin();
 
         $attributes = Arr::get($request->getParsedBody(), 'data.attributes', []);
 

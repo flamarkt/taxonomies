@@ -1,5 +1,6 @@
-import Modal from "flarum/common/components/Modal";
-import Button from "flarum/common/components/Button";
+import {Children} from 'mithril';
+import Modal from 'flarum/common/components/Modal';
+import Button from 'flarum/common/components/Button';
 
 export default abstract class AbstractEditModal extends Modal {
     dirty: boolean = false;
@@ -16,7 +17,7 @@ export default abstract class AbstractEditModal extends Modal {
         return app.translator.trans(this.translationPrefix() + 'title.' + (this.isNew() ? 'new' : 'edit'));
     }
 
-    abstract form();
+    abstract form(): Children;
 
     content() {
         return m('.Modal-body', [
@@ -38,5 +39,5 @@ export default abstract class AbstractEditModal extends Modal {
         ]);
     }
 
-    abstract ondelete();
+    abstract ondelete(): void;
 }

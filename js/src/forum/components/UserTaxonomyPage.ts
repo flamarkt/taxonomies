@@ -2,8 +2,7 @@ import UserPage from 'flarum/forum/components/UserPage';
 import sortTaxonomies from '../../common/utils/sortTaxonomies';
 import termsLabel from '../../common/helpers/termsLabel';
 import Taxonomy from '../../common/models/Taxonomy';
-
-/* global m */
+import Term from '../../common/models/Term';
 
 export default class UserTaxonomyPage extends UserPage {
     oninit(vnode) {
@@ -13,7 +12,7 @@ export default class UserTaxonomyPage extends UserPage {
     }
 
     content() {
-        const terms = this.user.taxonomyTerms();
+        const terms: Term[] = this.user.taxonomyTerms();
 
         if (!terms || !terms.length) {
             return null;

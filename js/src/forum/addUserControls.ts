@@ -1,5 +1,7 @@
 import {extend} from 'flarum/common/extend';
 import UserControls from 'flarum/forum/utils/UserControls';
+import ItemList from 'flarum/common/utils/ItemList';
+import User from 'flarum/common/models/User';
 import Button from 'flarum/common/components/Button';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
@@ -7,7 +9,7 @@ import ChooseTaxonomyTermsModal from '../common/components/ChooseTaxonomyTermsMo
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 
 export default function () {
-    extend(UserControls, 'userControls', function (items, user) {
+    extend(UserControls, 'userControls', function (items: ItemList, user: User) {
         if (!user.attribute('canEditTaxonomies')) {
             return;
         }
@@ -29,7 +31,7 @@ export default function () {
         });
     });
 
-    extend(UserPage.prototype, 'navItems', function (this: UserPage, items) {
+    extend(UserPage.prototype, 'navItems', function (this: UserPage, items: ItemList) {
         const userTaxonomiesExist = sortTaxonomies(app.forum.taxonomies()).some(taxonomy => {
             return taxonomy.type() === 'users';
         });
@@ -46,6 +48,5 @@ export default function () {
             }, app.translator.trans('flamarkt-taxonomies.forum.user.nav')),
             120
         );
-
     });
 }

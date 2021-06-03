@@ -1,14 +1,18 @@
-import AbstractEditModal from "./AbstractEditModal";
-import Taxonomy from "../../common/models/Taxonomy";
-import {ComponentAttrs} from "flarum/common/Component";
-import Select from "flarum/common/components/Select";
+import {Vnode} from 'mithril';
+import AbstractEditModal from './AbstractEditModal';
+import Taxonomy from '../../common/models/Taxonomy';
+import {ComponentAttrs} from 'flarum/common/Component';
+import Select from 'flarum/common/components/Select';
 import {slug} from 'flarum/common/utils/string';
-import extractText from "flarum/common/utils/extractText";
+import extractText from 'flarum/common/utils/extractText';
 
 interface EditTaxonomyModalAttrs extends ComponentAttrs {
     taxonomy: Taxonomy
+    onsave?: (taxonomy: Taxonomy) => void
+    ondelete?: () => void
 }
 
+// @ts-ignore Modal.view not type-hinted
 export default class EditTaxonomyModal extends AbstractEditModal {
     type!: string
     name!: string
@@ -24,10 +28,12 @@ export default class EditTaxonomyModal extends AbstractEditModal {
     minTerms!: number | string // Needs string because we leave the field empty for null
     maxTerms!: number | string
 
-    oninit(vnode) {
+    attrs!: EditTaxonomyModalAttrs
+
+    oninit(vnode: Vnode<EditTaxonomyModalAttrs, this>) {
         super.oninit(vnode);
 
-        const {taxonomy} = this.attrs as EditTaxonomyModalAttrs;
+        const {taxonomy} = this.attrs;
 
         this.type = taxonomy ? taxonomy.type() : 'products';
         this.name = taxonomy ? taxonomy.name() : '';
@@ -184,7 +190,7 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                         regex: app.translator.trans(this.translationPrefix() + 'validation-options.regex'),
                     },
                     value: this.customValueValidation.indexOf('/') === 0 ? 'regex' : this.customValueValidation,
-                    onchange: value => {
+                    onchange: (value: string) => {
                         this.customValueValidation = value === 'regex' ? '//' : value;
                         this.dirty = true;
                     },

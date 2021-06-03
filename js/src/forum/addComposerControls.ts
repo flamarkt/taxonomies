@@ -1,14 +1,15 @@
 import {extend, override} from 'flarum/common/extend';
 import DiscussionComposer from 'flarum/forum/components/DiscussionComposer';
-import Model from 'flarum/common/Model';
+import ItemList from 'flarum/common/utils/ItemList';
 import icon from 'flarum/common/helpers/icon';
 import ChooseTaxonomyTermsModal from '../common/components/ChooseTaxonomyTermsModal';
 import termsLabel from '../common/helpers/termsLabel';
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 import termToIdentifier from '../common/utils/termToIdentifier';
+import Term from '../common/models/Term';
 
 export default function () {
-    extend(DiscussionComposer.prototype, 'headerItems', function (this: DiscussionComposer, items) {
+    extend(DiscussionComposer.prototype, 'headerItems', function (this: DiscussionComposer, items: ItemList) {
         sortTaxonomies(app.forum.taxonomies()).forEach(taxonomy => {
             if (taxonomy.type() !== 'discussions') {
                 return;
@@ -19,9 +20,9 @@ export default function () {
                         app.modal.show(ChooseTaxonomyTermsModal, {
                             taxonomy,
                             selectedTerms: (this[taxonomy.uniqueKey()] || []).slice(0),
-                            onsubmit: terms => {
+                            onsubmit: (terms: Term[]) => {
                                 this[taxonomy.uniqueKey()] = terms;
-                                this.$('textarea').focus();
+                                this.$('textarea').trigger('focus');
                             },
                         });
                     },
@@ -42,7 +43,7 @@ export default function () {
     override(DiscussionComposer.prototype, 'onsubmit', function (this: DiscussionComposer, original) {
         // Zero timeout to change the execution thread and let the modal close in TagDiscussionModal / ChooseTaxonomyTermsModal
         // before we try opening another one
-        const callbacks: ((resolve) => void)[] = [];
+        const callbacks: ((resolve: () => void) => void)[] = [];
 
         sortTaxonomies(app.forum.taxonomies()).forEach(taxonomy => {
             if (taxonomy.type() !== 'discussions') {
@@ -56,7 +57,7 @@ export default function () {
                     app.modal.show(ChooseTaxonomyTermsModal, {
                         taxonomy,
                         selectedTags: (this[taxonomy.uniqueKey()] || []).slice(0),
-                        onsubmit: terms => {
+                        onsubmit: (terms: Term[]) => {
                             this[taxonomy.uniqueKey()] = terms;
                             resolve();
                         },
@@ -99,7 +100,7 @@ export default function () {
         }
     });
 
-    extend(DiscussionComposer.prototype, 'data', function (this: DiscussionComposer, data) {
+    extend(DiscussionComposer.prototype, 'data', function (this: DiscussionComposer, data: any) {
         const taxonomyData: any[] = [];
 
         // We put all term IDs from all taxonomies together for the request
@@ -110,7 +111,7 @@ export default function () {
 
             if (this[taxonomy.uniqueKey()] && this[taxonomy.uniqueKey()].length) {
                 taxonomyData.push({
-                    verbatim: true, // Flarum workaround, see below in Model.getIdentifier
+                    verbatim: true, // Flarum workaround, defined in flamarkt/core
                     type: 'flamarkt-taxonomies',
                     id: taxonomy.id(),
                     relationships: {

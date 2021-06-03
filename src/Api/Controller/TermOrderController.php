@@ -7,6 +7,7 @@ use Flamarkt\Taxonomies\Repositories\TaxonomyRepository;
 use Flamarkt\Taxonomies\Repositories\TermRepository;
 use Flamarkt\Taxonomies\Validators\OrderValidator;
 use Flarum\Api\Controller\AbstractListController;
+use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -28,7 +29,7 @@ class TermOrderController extends AbstractListController
 
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $request->getAttribute('actor')->assertAdmin();
+        RequestUtil::getActor($request)->assertAdmin();
 
         $id = Arr::get($request->getQueryParams(), 'id');
 

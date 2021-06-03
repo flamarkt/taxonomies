@@ -1,4 +1,7 @@
+import {Vnode} from 'mithril';
+import {ComponentAttrs} from 'flarum/common/Component';
 import Modal from 'flarum/common/components/Modal';
+import Model from 'flarum/common/Model';
 import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
@@ -12,14 +15,13 @@ import termLabel from '../helpers/termLabel';
 import taxonomyIcon from '../helpers/taxonomyIcon';
 import termToIdentifier from '../utils/termToIdentifier';
 import Term from '../models/Term';
-
-/* global m */
+import Taxonomy from '../models/Taxonomy';
 
 /**
  * Comparing objects directly is unreliable because we will be creating some new records as well
  * So we use this method to do a proper deep check
  */
-function isSameTerm(a, b) {
+function isSameTerm(a: Term, b: Term) {
     if (a.data.type !== b.data.type) {
         return false;
     }
@@ -38,6 +40,13 @@ function isSameTerm(a, b) {
     return a.name() === b.name();
 }
 
+interface ChooseTaxonomyTermsModalAttrs extends ComponentAttrs {
+    resource: Model
+    taxonomy: Taxonomy
+    selectedTerms: Term[]
+    onsubmit?: (terms: Term[]) => void
+}
+
 /**
  * Based on Flarum's TagDiscussionModal
  */
@@ -50,14 +59,16 @@ export default class ChooseTaxonomyTermsModal extends Modal {
     saving: boolean = false;
     navigator!: KeyboardNavigatable;
 
-    oninit(vnode) {
+    attrs!: ChooseTaxonomyTermsModalAttrs
+
+    oninit(vnode: Vnode<ChooseTaxonomyTermsModalAttrs, this>) {
         super.oninit(vnode);
 
         if (this.attrs.selectedTerms) {
             this.attrs.selectedTerms.forEach(this.addTerm.bind(this));
         } else if (this.attrs.resource) {
             console.log(this.attrs.resource.taxonomyTerms());
-            this.attrs.resource.taxonomyTerms().forEach(term => {
+            this.attrs.resource.taxonomyTerms().forEach((term: Term) => {
                 if (term.taxonomy().id() === this.attrs.taxonomy.id()) {
                     this.addTerm(term);
                 }
@@ -100,15 +111,15 @@ export default class ChooseTaxonomyTermsModal extends Modal {
             });
     }
 
-    indexInSelectedTerms(term) {
+    indexInSelectedTerms(term: Term) {
         return this.selectedTerms.findIndex(t => isSameTerm(t, term));
     }
 
-    addTerm(term) {
+    addTerm(term: Term) {
         this.selectedTerms.push(term);
     }
 
-    removeTerm(term) {
+    removeTerm(term: Term) {
         const index = this.indexInSelectedTerms(term);
 
         if (index !== -1) {
@@ -136,7 +147,9 @@ export default class ChooseTaxonomyTermsModal extends Modal {
 
         if (this.attrs.taxonomy.minTerms() && count < this.attrs.taxonomy.minTerms()) {
             const remaining = this.attrs.taxonomy.minTerms() - count;
-            return app.translator.transChoice('flamarkt-taxonomies.forum.modal.placeholder', remaining, {remaining});
+            return app.translator.trans('flamarkt-taxonomies.forum.modal.placeholder', {
+                count: remaining,
+            });
         } else if (count === 0) {
             return app.translator.trans('flamarkt-taxonomies.forum.modal.placeholderOptional');
         }
@@ -256,7 +269,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         this.inputIsFocused = false;
     }
 
-    listAvailableTerms(terms) {
+    listAvailableTerms(terms: Term[]) {
         return m('.Modal-footer', this.availableTerms === null ?
             LoadingIndicator.component() :
             m('ul.ChooseTaxonomyTermsModal-list.SelectTermList', {
@@ -265,7 +278,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         );
     }
 
-    listAvailableTerm(term, index) {
+    listAvailableTerm(term: Term, index: number) {
         return m('li.SelectTermListItem', {
             'data-index': index,
             className: classList({
@@ -285,7 +298,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         ]);
     }
 
-    toggleTerm(term) {
+    toggleTerm(term: Term) {
         const index = this.indexInSelectedTerms(term);
 
         if (index !== -1) {
@@ -326,11 +339,11 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         }
     }
 
-    getDomElement(index) {
+    getDomElement(index: number) {
         return this.$(`.SelectTermListItem[data-index="${index}"]`);
     }
 
-    setIndex(index, scrollToItem) {
+    setIndex(index: number, scrollToItem: boolean) {
         const $dropdown = this.$('.ChooseTaxonomyTermsModal-list');
 
         const indexLength = this.$('.SelectTermListItem').length;
@@ -347,11 +360,11 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         m.redraw();
 
         if (scrollToItem) {
-            const dropdownScroll = $dropdown.scrollTop();
-            const dropdownTop = $dropdown.offset().top;
-            const dropdownBottom = dropdownTop + $dropdown.outerHeight();
-            const itemTop = $item.offset().top;
-            const itemBottom = itemTop + $item.outerHeight();
+            const dropdownScroll = $dropdown.scrollTop() || 0;
+            const dropdownTop = $dropdown.offset()?.top || 0;
+            const dropdownBottom = dropdownTop + ($dropdown.outerHeight() || 0);
+            const itemTop = $item.offset()?.top || 0;
+            const itemBottom = itemTop + ($item.outerHeight() || 0);
 
             let scrollTop;
             if (itemTop < dropdownTop) {
@@ -366,7 +379,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         }
     }
 
-    onsubmit(event) {
+    onsubmit(event: Event) {
         event.preventDefault();
 
         if (this.attrs.resource) {
@@ -388,7 +401,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
             relationships: {
                 taxonomies: [
                     {
-                        verbatim: true, // Flarum workaround, handled in addComposerControls
+                        verbatim: true, // Flarum workaround, defined in flamarkt/core
                         type: 'flamarkt-taxonomies',
                         id: this.attrs.taxonomy.id(),
                         relationships: {

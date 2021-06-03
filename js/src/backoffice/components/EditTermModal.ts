@@ -1,13 +1,19 @@
+import {Vnode} from 'mithril';
 import extractText from 'flarum/common/utils/extractText';
 import {slug} from 'flarum/common/utils/string';
 import AbstractEditModal from './AbstractEditModal';
-import {ComponentAttrs} from "flarum/common/Component";
-import Term from "../../common/models/Term";
+import {ComponentAttrs} from 'flarum/common/Component';
+import Term from '../../common/models/Term';
+import Taxonomy from '../../common/models/Taxonomy';
 
 interface EditTermModalAttrs extends ComponentAttrs {
     term: Term
+    taxonomy: Taxonomy
+    onsave?: (term: Term) => void
+    ondelete?: () => void
 }
 
+// @ts-ignore Modal.view not type-hinted
 export default class EditTermModal extends AbstractEditModal {
     name!: string
     slug!: string
@@ -15,10 +21,12 @@ export default class EditTermModal extends AbstractEditModal {
     color!: string
     icon!: string
 
-    oninit(vnode) {
+    attrs!: EditTermModalAttrs
+
+    oninit(vnode: Vnode<EditTermModalAttrs, this>) {
         super.oninit(vnode);
 
-        const {term} = this.attrs as EditTermModalAttrs;
+        const {term} = this.attrs;
 
         this.name = term ? term.name() : '';
         this.slug = term ? term.slug() : '';

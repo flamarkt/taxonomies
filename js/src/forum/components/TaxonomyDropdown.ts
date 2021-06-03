@@ -1,16 +1,22 @@
-import Component from 'flarum/common/Component';
+import {Vnode} from 'mithril';
+import Component, {ComponentAttrs} from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import Dropdown from 'flarum/common/components/Dropdown';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Term from '../../common/models/Term';
+import Taxonomy from '../../common/models/Taxonomy';
 
-/* global m */
+interface TaxonomyDropdownAttrs extends ComponentAttrs {
+    taxonomy: Taxonomy
+    onchange: (term: Term) => void
+    activeTermSlug?: string
+}
 
-export default class TaxonomyDropdown extends Component {
+export default class TaxonomyDropdown extends Component<TaxonomyDropdownAttrs> {
     termsInitialized: boolean = false;
     terms: Term[] | null = null;
 
-    oninit(vnode) {
+    oninit(vnode: Vnode<TaxonomyDropdownAttrs>) {
         super.oninit(vnode);
 
         // If a term is active while the component inits, we're probably loading a page with pre-loaded filters
@@ -32,7 +38,7 @@ export default class TaxonomyDropdown extends Component {
             method: 'GET',
             url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiEndpoint() + '/terms',
         }).then(result => {
-            this.terms = app.store.pushPayload(result);
+            this.terms = app.store.pushPayload(result) as Term[];
 
             this.terms.forEach(term => {
                 term.pushData({
@@ -65,6 +71,6 @@ export default class TaxonomyDropdown extends Component {
                 onclick: () => this.attrs.onchange(term),
                 active, // Remove after https://github.com/flarum/core/issues/2265
             }, term.name());
-        }));
+        }) as any);
     }
 }

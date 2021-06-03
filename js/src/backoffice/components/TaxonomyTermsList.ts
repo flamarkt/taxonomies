@@ -1,5 +1,6 @@
 import sortable from 'html5sortable/dist/html5sortable.es.js';
 
+import {Vnode} from 'mithril';
 import Component, {ComponentAttrs} from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
@@ -16,7 +17,7 @@ interface TaxonomyTermsListAttrs extends ComponentAttrs {
 export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs> {
     terms: Term[] | null = null
 
-    oninit(vnode) {
+    oninit(vnode: Vnode<TaxonomyTermsListAttrs, this>) {
         super.oninit(vnode);
 
         app.request({
@@ -31,6 +32,7 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
     view() {
         return m('.TaxonomyTermEdit', [
             this.terms === null ? LoadingIndicator.component({}) : m('ol.TaxonomyTermList', {
+                //TODO: update for Mithril v2
                 config: element => {
                     sortable(element)[0].addEventListener('sortupdate', event => {
                         const order = this.$('.js-sort-term-item')
@@ -81,7 +83,7 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
                 onclick: () => {
                     app.modal.show(EditTermModal, {
                         taxonomy: this.attrs.taxonomy,
-                        onsave: term => {
+                        onsave: (term: Term) => {
                             this.terms = sortTerms([...this.terms, term]);
                         },
                     });

@@ -98,7 +98,7 @@ flamarkt-taxonomies:
             title:
                 new: Choose {taxonomy} for your discussion
                 edit: Edit {taxonomy} for {title}
-            placeholder: Choose a term...|Choose {remaining} terms...
+            placeholder: "{count, plural, one {Choose a term...} other {Choose # terms...}}"
             placeholderOptional: Choose...
             custom: Use {value}
             submit: OK
