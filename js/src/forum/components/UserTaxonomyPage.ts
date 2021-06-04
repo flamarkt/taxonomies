@@ -1,11 +1,13 @@
+import {Vnode} from 'mithril';
 import UserPage from 'flarum/forum/components/UserPage';
 import sortTaxonomies from '../../common/utils/sortTaxonomies';
 import termsLabel from '../../common/helpers/termsLabel';
 import Taxonomy from '../../common/models/Taxonomy';
 import Term from '../../common/models/Term';
 
+// @ts-ignore UserPage.view not type-hinted
 export default class UserTaxonomyPage extends UserPage {
-    oninit(vnode) {
+    oninit(vnode: Vnode<any, this>) {
         super.oninit(vnode);
 
         this.loadUser(m.route.param('username'));

@@ -1,6 +1,7 @@
 import {Vnode} from 'mithril';
 import extractText from 'flarum/common/utils/extractText';
 import {slug} from 'flarum/common/utils/string';
+import withAttr from 'flarum/common/utils/withAttr';
 import AbstractEditModal from './AbstractEditModal';
 import {ComponentAttrs} from 'flarum/common/Component';
 import Term from '../../common/models/Term';
@@ -50,11 +51,11 @@ export default class EditTermModal extends AbstractEditModal {
                 m('input.FormControl', {
                     type: 'text',
                     value: this.name,
-                    oninput: event => {
-                        this.name = event.target.value;
-                        this.slug = slug(event.target.value);
+                    oninput: withAttr('value', (value: string) => {
+                        this.name = value;
+                        this.slug = slug(value);
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
@@ -62,20 +63,20 @@ export default class EditTermModal extends AbstractEditModal {
                 m('input.FormControl', {
                     type: 'text',
                     value: this.slug,
-                    oninput: event => {
-                        this.slug = event.target.value;
+                    oninput: withAttr('value', (value: string) => {
+                        this.slug = value;
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
                 m('label', app.translator.trans(this.translationPrefix() + 'field.description')),
                 m('textarea.FormControl', {
                     value: this.description,
-                    oninput: event => {
-                        this.description = event.target.value;
+                    oninput: withAttr('value', (value: string) => {
+                        this.description = value;
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
@@ -83,10 +84,10 @@ export default class EditTermModal extends AbstractEditModal {
                 m('input.FormControl', {
                     type: 'text',
                     value: this.color,
-                    oninput: event => {
-                        this.color = event.target.value;
+                    oninput: withAttr('value', (value: string) => {
+                        this.color = value;
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
@@ -100,10 +101,10 @@ export default class EditTermModal extends AbstractEditModal {
                 m('input.FormControl', {
                     type: 'text',
                     value: this.icon,
-                    oninput: event => {
-                        this.icon = event.target.value;
+                    oninput: withAttr('value', (value: string) => {
+                        this.icon = value;
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
         ];
@@ -131,7 +132,8 @@ export default class EditTermModal extends AbstractEditModal {
         });
     }
 
-    onsubmit(event) {
+    // @ts-ignore wrong Modal.obsubmit typings in Flarum
+    onsubmit(event: Event) {
         event.preventDefault();
 
         this.loading = true;
@@ -143,7 +145,7 @@ export default class EditTermModal extends AbstractEditModal {
         };
 
         if (this.isNew()) {
-            options.url = app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiEndpoint() + '/terms';
+            options.url = app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiTermsEndpoint();
         }
 
         record.save({

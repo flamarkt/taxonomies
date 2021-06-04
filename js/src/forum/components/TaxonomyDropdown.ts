@@ -36,7 +36,7 @@ export default class TaxonomyDropdown extends Component<TaxonomyDropdownAttrs> {
 
         app.request({
             method: 'GET',
-            url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiEndpoint() + '/terms',
+            url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiTermsEndpoint(),
         }).then(result => {
             this.terms = app.store.pushPayload(result) as Term[];
 

@@ -114,7 +114,7 @@ export default function () {
             ]);
         }
 
-        applyFilter(params, resource) {
+        applyFilter(params: any, resource: any) {
             params.q = params.q ? params.q + ' ' : '';
             params.q += 'taxonomy:' + resource.taxonomy().slug() + ':' + resource.slug();
         }
@@ -124,14 +124,14 @@ export default function () {
                 return Promise.resolve([]);
             }
 
-            const gambits = params.q.split(' ').filter(word => word.indexOf('taxonomy:') === 0);
+            const gambits: string[] = params.q.split(' ').filter(word => word.indexOf('taxonomy:') === 0);
 
             if (!gambits.length) {
                 return Promise.resolve([]);
             }
 
             return this.loadTerms().then(() => {
-                const terms = [];
+                const terms: Term[] = [];
 
                 gambits.forEach(gambit => {
                     const parts = gambit.split(':');

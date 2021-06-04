@@ -4,6 +4,7 @@ import Taxonomy from '../../common/models/Taxonomy';
 import {ComponentAttrs} from 'flarum/common/Component';
 import Select from 'flarum/common/components/Select';
 import {slug} from 'flarum/common/utils/string';
+import withAttr from 'flarum/common/utils/withAttr';
 import extractText from 'flarum/common/utils/extractText';
 
 interface EditTaxonomyModalAttrs extends ComponentAttrs {
@@ -70,7 +71,7 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                         users: app.translator.trans(this.translationPrefix() + 'type-options.users'),
                     },
                     value: this.type,
-                    onchange: value => {
+                    onchange: (value: string) => {
                         this.type = value;
                         this.dirty = true;
                     },
@@ -82,11 +83,11 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                 m('input.FormControl', {
                     type: 'text',
                     value: this.name,
-                    oninput: event => {
-                        this.name = event.target.value;
-                        this.slug = slug(event.target.value);
+                    oninput: withAttr('value', (value: string) => {
+                        this.name = value;
+                        this.slug = slug(value);
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
@@ -94,20 +95,20 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                 m('input.FormControl', {
                     type: 'text',
                     value: this.slug,
-                    oninput: event => {
-                        this.slug = event.target.value;
+                    oninput: withAttr('value', (value: string) => {
+                        this.slug = value;
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
                 m('label', app.translator.trans(this.translationPrefix() + 'field.description')),
                 m('textarea.FormControl', {
                     value: this.description,
-                    oninput: event => {
-                        this.description = event.target.value;
+                    oninput: withAttr('value', (value: string) => {
+                        this.description = value;
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
@@ -115,10 +116,10 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                 m('input.FormControl', {
                     type: 'text',
                     value: this.color,
-                    oninput: event => {
-                        this.color = event.target.value;
+                    oninput: withAttr('value', (value: string) => {
+                        this.color = value;
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
@@ -132,10 +133,10 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                 m('input.FormControl', {
                     type: 'text',
                     value: this.icon,
-                    oninput: event => {
-                        this.icon = event.target.value;
+                    oninput: withAttr('value', (value: string) => {
+                        this.icon = value;
                         this.dirty = true;
-                    },
+                    }),
                 }),
             ]),
             m('.Form-group', [
@@ -201,20 +202,20 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                     m('input.FormControl', {
                         type: 'text',
                         value: this.customValueValidation.split('/')[1],
-                        oninput: event => {
-                            this.customValueValidation = '/' + event.target.value + '/' + this.customValueValidation.split('/')[2];
+                        oninput: withAttr('value', (value: string) => {
+                            this.customValueValidation = '/' + value + '/' + this.customValueValidation.split('/')[2];
                             this.dirty = true;
-                        },
+                        }),
                         disabled: !this.allowCustomValues,
                     }),
                     m('span', '/'),
                     m('input.FormControl', {
                         type: 'text',
                         value: this.customValueValidation.split('/')[2],
-                        oninput: event => {
-                            this.customValueValidation = '/' + this.customValueValidation.split('/')[1] + '/' + event.target.value;
+                        oninput: withAttr('value', (value: string) => {
+                            this.customValueValidation = '/' + this.customValueValidation.split('/')[1] + '/' + value;
                             this.dirty = true;
-                        },
+                        }),
                         disabled: !this.allowCustomValues,
                     }),
                 ]) : null,
@@ -229,7 +230,7 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                         transliterator: app.translator.trans(this.translationPrefix() + 'slugger-options.transliterator'),
                     },
                     value: this.customValueSlugger,
-                    onchange: value => {
+                    onchange: (value: string) => {
                         this.customValueSlugger = value;
                         this.dirty = true;
                     },
@@ -245,10 +246,10 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                         min: 0,
                         step: 1,
                         value: this.minTerms,
-                        oninput: event => {
-                            this.minTerms = parseInt(event.target.value) || '';
+                        oninput: withAttr('value', (value: string) => {
+                            this.minTerms = parseInt(value) || '';
                             this.dirty = true;
-                        },
+                        }),
                     }),
                     ' ',
                     app.translator.trans(this.translationPrefix() + 'field.rangeSeparatorText'),
@@ -258,10 +259,10 @@ export default class EditTaxonomyModal extends AbstractEditModal {
                         min: 0,
                         step: 1,
                         value: this.maxTerms,
-                        oninput: event => {
-                            this.maxTerms = parseInt(event.target.value) || '';
+                        oninput: withAttr('value', (value: string) => {
+                            this.maxTerms = parseInt(value) || '';
                             this.dirty = true;
-                        },
+                        }),
                     }),
                 ]),
             ]),
@@ -290,12 +291,13 @@ export default class EditTaxonomyModal extends AbstractEditModal {
         });
     }
 
-    onsubmit(event) {
+    // @ts-ignore wrong Modal.obsubmit typings in Flarum
+    onsubmit(event: Event) {
         event.preventDefault();
 
         this.loading = true;
 
-        const record = this.attrs.taxonomy || app.store.createRecord('flamarkt-taxonomies');
+        const record: Taxonomy = this.attrs.taxonomy || app.store.createRecord('flamarkt-taxonomies');
 
         record.save({
             type: this.type,

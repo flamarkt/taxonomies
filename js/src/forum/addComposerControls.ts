@@ -9,6 +9,10 @@ import termToIdentifier from '../common/utils/termToIdentifier';
 import Term from '../common/models/Term';
 
 export default function () {
+    extend(DiscussionComposer.prototype, 'oninit', function (this: DiscussionComposer) {
+        this.selectedTaxonomyTerms = {};
+    });
+
     extend(DiscussionComposer.prototype, 'headerItems', function (this: DiscussionComposer, items: ItemList) {
         sortTaxonomies(app.forum.taxonomies()).forEach(taxonomy => {
             if (taxonomy.type() !== 'discussions') {
@@ -19,15 +23,15 @@ export default function () {
                     onclick: () => {
                         app.modal.show(ChooseTaxonomyTermsModal, {
                             taxonomy,
-                            selectedTerms: (this[taxonomy.uniqueKey()] || []).slice(0),
+                            selectedTerms: (this.selectedTaxonomyTerms[taxonomy.id()] || []).slice(0),
                             onsubmit: (terms: Term[]) => {
-                                this[taxonomy.uniqueKey()] = terms;
+                                this.selectedTaxonomyTerms[taxonomy.id()] = terms;
                                 this.$('textarea').trigger('focus');
                             },
                         });
                     },
-                }, this[taxonomy.uniqueKey()] && this[taxonomy.uniqueKey()].length
-                ? termsLabel(this[taxonomy.uniqueKey()], {
+                }, this.selectedTaxonomyTerms[taxonomy.id()] && this.selectedTaxonomyTerms[taxonomy.id()].length
+                ? termsLabel(this.selectedTaxonomyTerms[taxonomy.id()], {
                     taxonomy,
                 })
                 : m('span.TaxonomyLabel.untagged', [
@@ -40,7 +44,7 @@ export default function () {
         });
     });
 
-    override(DiscussionComposer.prototype, 'onsubmit', function (this: DiscussionComposer, original) {
+    override(DiscussionComposer.prototype, 'onsubmit', function (this: DiscussionComposer, original: any) {
         // Zero timeout to change the execution thread and let the modal close in TagDiscussionModal / ChooseTaxonomyTermsModal
         // before we try opening another one
         const callbacks: ((resolve: () => void) => void)[] = [];
@@ -50,15 +54,15 @@ export default function () {
                 return;
             }
 
-            const count = (this[taxonomy.uniqueKey()] || []).length;
+            const count = (this.selectedTaxonomyTerms[taxonomy.id()] || []).length;
 
             if (taxonomy.minTerms() && count < taxonomy.minTerms()) {
                 callbacks.push(resolve => {
                     app.modal.show(ChooseTaxonomyTermsModal, {
                         taxonomy,
-                        selectedTags: (this[taxonomy.uniqueKey()] || []).slice(0),
+                        selectedTags: (this.selectedTaxonomyTerms[taxonomy.id()] || []).slice(0),
                         onsubmit: (terms: Term[]) => {
-                            this[taxonomy.uniqueKey()] = terms;
+                            this.selectedTaxonomyTerms[taxonomy.id()] = terms;
                             resolve();
                         },
                     });
@@ -109,14 +113,14 @@ export default function () {
                 return;
             }
 
-            if (this[taxonomy.uniqueKey()] && this[taxonomy.uniqueKey()].length) {
+            if (this.selectedTaxonomyTerms[taxonomy.id()] && this.selectedTaxonomyTerms[taxonomy.id()].length) {
                 taxonomyData.push({
                     verbatim: true, // Flarum workaround, defined in flamarkt/core
                     type: 'flamarkt-taxonomies',
                     id: taxonomy.id(),
                     relationships: {
                         terms: {
-                            data: this[taxonomy.uniqueKey()].map(termToIdentifier),
+                            data: this.selectedTaxonomyTerms[taxonomy.id()].map(termToIdentifier),
                         },
                     },
                 });

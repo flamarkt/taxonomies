@@ -28,7 +28,10 @@ export default function () {
                         params[taxonomy.slug()] = term.slug();
                     }
 
-                    m.route.set(app.route(this.attrs.routeName, params));
+                    // @ts-ignore Flarum injects routeName as a page attr but this isn't type-hinted anywhere
+                    const {routeName} = this.attrs;
+
+                    m.route.set(app.route(routeName, params));
                 },
             }));
         });

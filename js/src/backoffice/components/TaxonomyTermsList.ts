@@ -21,7 +21,7 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
 
         app.request({
             method: 'GET',
-            url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiEndpoint() + '/terms',
+            url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiTermsEndpoint(),
         }).then(result => {
             this.terms = app.store.pushPayload(result);
             m.redraw();

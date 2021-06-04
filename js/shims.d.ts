@@ -1,5 +1,4 @@
-// Mithril
-import Mithril, {Component} from 'mithril';
+import Mithril from 'mithril';
 
 declare global {
     const m: Mithril.Static;
@@ -35,17 +34,12 @@ declare module 'flarum/common/models/Forum' {
     }
 }
 
-declare module 'flarum/common/components/Modal' {
-    // <T extends ComponentAttrs = ComponentAttrs> extends Component<T>
-    export default interface Modal {
-        onsubmit(event: Event): void;
-    }
-}
+import Term from './src/common/models/Term';
 
-import AdminNav from 'flarum/admin/components/AdminNav';
-
-declare module 'flamarkt/core/backoffice/components/BackofficeNav' {
-    export default interface BackofficeNav extends AdminNav {
-        //
+declare module 'flarum/forum/components/DiscussionComposer' {
+    export default interface DiscussionComposer {
+        selectedTaxonomyTerms: {
+            [taxonomyUniqueKey: string]: Term[]
+        }
     }
 }

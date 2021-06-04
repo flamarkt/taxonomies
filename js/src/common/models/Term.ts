@@ -1,4 +1,5 @@
 import Model from 'flarum/common/Model';
+import Taxonomy from './Taxonomy';
 
 export default class Term extends Model {
     name = Model.attribute('name');
@@ -9,7 +10,7 @@ export default class Term extends Model {
     order = Model.attribute('order');
     createdAt = Model.attribute('createdAt', Model.transformDate);
 
-    taxonomy = Model.hasOne('taxonomy');
+    taxonomy: () => Taxonomy | false = Model.hasOne('taxonomy');
 
     protected apiEndpoint(): string {
         return '/flamarkt/taxonomy-terms' + (this.exists ? '/' + this.data.id : '');

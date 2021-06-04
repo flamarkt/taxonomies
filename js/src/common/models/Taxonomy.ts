@@ -1,5 +1,4 @@
 import Model from 'flarum/common/Model';
-import computed from 'flarum/common/utils/computed';
 
 export default class Taxonomy extends Model {
     type = Model.attribute('type');
@@ -20,14 +19,15 @@ export default class Taxonomy extends Model {
     canSearchDiscussions = Model.attribute('canSearchDiscussions');
     canSearchUsers = Model.attribute('canSearchUsers');
 
-    // Used to store the terms on the DiscussionComposer, never visible or part of the DOM
-    uniqueKey = computed('id', id => 'taxonomy' + id);
-
     protected apiEndpoint(): string {
         return '/flamarkt/taxonomies' + (this.exists ? '/' + this.data.id : '');
     }
 
     apiOrderEndpoint(): string {
         return this.apiEndpoint() + '/terms/order';
+    }
+
+    apiTermsEndpoint(): string {
+        return this.apiEndpoint() + '/terms';
     }
 }
