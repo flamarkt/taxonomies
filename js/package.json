@@ -4,7 +4,6 @@
     "dependencies": {
         "flarum-tsconfig": "^1.0",
         "flarum-webpack-config": "^1.0",
-        "html5sortable": "^0.9.18",
         "webpack": "^4.0",
         "webpack-cli": "^3.0"
     },

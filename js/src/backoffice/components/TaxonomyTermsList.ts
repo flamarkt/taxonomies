@@ -1,9 +1,8 @@
-import sortable from 'html5sortable/dist/html5sortable.es.js';
-
 import {Vnode} from 'mithril';
 import Component, {ComponentAttrs} from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import Sortable from 'flamarkt/core/common/components/Sortable';
 import sortTerms from '../../common/utils/sortTerms';
 import EditTermModal from './EditTermModal';
 import taxonomyIcon from '../../common/helpers/taxonomyIcon';
@@ -31,34 +30,37 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
 
     view() {
         return m('.TaxonomyTermEdit', [
-            this.terms === null ? LoadingIndicator.component({}) : m('ol.TaxonomyTermList', {
-                //TODO: update for Mithril v2
-                config: element => {
-                    sortable(element)[0].addEventListener('sortupdate', event => {
-                        const order = this.$('.js-sort-term-item')
-                            .map(function () {
-                                return $(this).data('id');
-                            })
-                            .get();
+            this.terms === null ? LoadingIndicator.component({}) : this.viewTerms(this.terms),
+        ]);
+    }
 
-                        app.request({
-                            method: 'POST',
-                            url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiEndpoint() + '/terms/order',
-                            data: {
-                                order,
-                            },
-                        }).then(result => {
-                            // If there's no error, we save the new order so it can be used in case a redraw is triggered
-                            app.store.pushPayload(result);
-                        }).catch(e => {
-                            // If there's an error, we force a full redraw to make sure the user sees what is saved
-                            m.redraw();
-                            throw e;
-                        });
+    viewTerms(terms: Term[]) {
+        return [
+            m(Sortable, {
+                containerTag: 'ol',
+                className: 'TaxonomyTermList',
+                handleClassName: null,
+                onsort: (origin: number, destination: number) => {
+                    terms.splice(destination, 0, ...terms.splice(origin, 1));
+
+                    app.request({
+                        method: 'POST',
+                        url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiOrderEndpoint(),
+                        body: {
+                            order: terms.map(term => term.id()),
+                        },
+                    }).then(result => {
+                        // If there's no error, we save the new order so it can be used in case a redraw is triggered
+                        app.store.pushPayload(result);
+                    }).catch(e => {
+                        // If there's an error, we force a full redraw to make sure the user sees what is saved
+                        m.redraw();
+                        throw e;
                     });
                 },
-            }, this.terms.map((term, index) => m('li.TaxonomyTermListItem.js-sort-term-item', {
-                'data-id': term.id(),
+            }, terms.map((term, index) => m('li.TaxonomyTermListItem', {
+                draggable: true,
+                key: term.id(),
                 style: {
                     color: term.color(),
                 },
@@ -72,7 +74,7 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
                         app.modal.show(EditTermModal, {
                             term,
                             ondelete: () => {
-                                this.terms.splice(index, 1);
+                                terms.splice(index, 1);
                             },
                         });
                     },
@@ -84,7 +86,7 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
                     app.modal.show(EditTermModal, {
                         taxonomy: this.attrs.taxonomy,
                         onsave: (term: Term) => {
-                            this.terms = sortTerms([...this.terms, term]);
+                            this.terms = sortTerms([...terms, term]);
                         },
                     });
                 },
@@ -95,18 +97,19 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
                 onclick: () => {
                     app.request({
                         method: 'POST',
-                        url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiEndpoint() + '/terms/order',
-                        data: {
+                        url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiOrderEndpoint(),
+                        body: {
                             order: [],
                         },
                     }).then(result => {
-                        app.store.pushPayload(result);
+                        this.terms = app.store.pushPayload(result);
+                        m.redraw();
                     }).catch(e => {
                         m.redraw();
                         throw e;
                     });
                 },
             }, app.translator.trans('flamarkt-taxonomies.admin.page.reset-term-order')),
-        ]);
+        ];
     }
 }

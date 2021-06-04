@@ -26,4 +26,8 @@ export default class Taxonomy extends Model {
     protected apiEndpoint(): string {
         return '/flamarkt/taxonomies' + (this.exists ? '/' + this.data.id : '');
     }
+
+    apiOrderEndpoint(): string {
+        return this.apiEndpoint() + '/terms/order';
+    }
 }
