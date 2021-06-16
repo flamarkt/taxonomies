@@ -16,8 +16,7 @@ export default class Taxonomy extends Model {
     minTerms = Model.attribute('minTerms');
     maxTerms = Model.attribute('maxTerms');
     createdAt = Model.attribute('createdAt', Model.transformDate);
-    canSearchDiscussions = Model.attribute('canSearchDiscussions');
-    canSearchUsers = Model.attribute('canSearchUsers');
+    canSearch = Model.attribute('canSearch');
 
     protected apiEndpoint(): string {
         return '/flamarkt/taxonomies' + (this.exists ? '/' + this.data.id : '');

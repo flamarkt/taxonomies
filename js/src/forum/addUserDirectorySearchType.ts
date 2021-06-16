@@ -2,6 +2,7 @@ import {extend} from 'flarum/common/extend';
 import icon from 'flarum/common/helpers/icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import Term from '../common/models/Term';
+import showsFilterFor from './utils/showsFilterFor';
 
 export default function () {
     // Verify User Directory is enabled and exports all the classes we need
@@ -65,11 +66,7 @@ export default function () {
 
             const promises: Promise<void>[] = [];
 
-            app.store.all('flamarkt-taxonomies').forEach(taxonomy => {
-                if (!taxonomy.canSearchUsers() || !taxonomy.showFilter()) {
-                    return;
-                }
-
+            app.store.all('flamarkt-taxonomies').filter(showsFilterFor('users')).forEach(taxonomy => {
                 promises.push(app.request({
                     method: 'GET',
                     url: app.forum.attribute('apiUrl') + taxonomy.apiEndpoint() + '/terms',

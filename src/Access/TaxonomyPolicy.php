@@ -17,14 +17,9 @@ class TaxonomyPolicy extends AbstractPolicy
             $actor->hasPermission('user.editOwnTaxonomy');
     }
 
-    public function searchDiscussions(User $actor, Taxonomy $taxonomy)
+    public function search(User $actor, Taxonomy $taxonomy)
     {
-        return $taxonomy->type === 'discussions' && $this->canSeeAllTaxonomies($actor);
-    }
-
-    public function searchUsers(User $actor, Taxonomy $taxonomy)
-    {
-        return $taxonomy->type === 'users' && $this->canSeeAllTaxonomies($actor);
+        return $this->canSeeAllTaxonomies($actor);
     }
 
     public function listTerms(User $actor, Taxonomy $taxonomy)

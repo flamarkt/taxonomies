@@ -6,14 +6,11 @@ import ItemList from 'flarum/common/utils/ItemList';
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 import TaxonomyDropdown from './components/TaxonomyDropdown';
 import Term from '../common/models/Term';
+import showsFilterFor from './utils/showsFilterFor';
 
 export default function () {
     extend(IndexPage.prototype, 'viewItems', function (this: IndexPage, items: ItemList) {
-        sortTaxonomies(app.store.all('flamarkt-taxonomies')).forEach(taxonomy => {
-            if (!taxonomy.canSearchDiscussions() || !taxonomy.showFilter()) {
-                return;
-            }
-
+        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions')).forEach(taxonomy => {
             items.add('taxonomy-' + taxonomy.slug(), TaxonomyDropdown.component({
                 taxonomy,
                 activeTermSlug: app.search.params()[taxonomy.slug()],
@@ -38,7 +35,7 @@ export default function () {
     });
 
     extend(GlobalSearchState.prototype, 'stickyParams', function (params: any) {
-        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(t => t.canSearchDiscussions() && t.showFilter()).forEach(taxonomy => {
+        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions')).forEach(taxonomy => {
             params[taxonomy.slug()] = m.route.param(taxonomy.slug());
         });
     });
@@ -48,7 +45,7 @@ export default function () {
         // Same includes are pre-loaded in DiscussionAttributes.php
         params.include.push('taxonomyTerms', 'taxonomyTerms.taxonomy');
 
-        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(t => t.canSearchDiscussions() && t.showFilter()).forEach(taxonomy => {
+        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions')).forEach(taxonomy => {
             const filterTermSlug = this.params[taxonomy.slug()];
 
             if (filterTermSlug) {

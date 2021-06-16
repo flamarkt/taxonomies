@@ -29,8 +29,7 @@ class TaxonomySerializer extends AbstractSerializer
             'customValueValidation' => $taxonomy->custom_value_validation,
             'minTerms' => $taxonomy->min_terms,
             'maxTerms' => $taxonomy->max_terms,
-            'canSearchDiscussions' => $this->actor->can('searchDiscussions', $taxonomy),
-            'canSearchUsers' => $this->actor->can('searchUsers', $taxonomy),
+            'canSearch' => $this->actor->can('search', $taxonomy),
         ];
 
         if ($this->actor->isAdmin()) {
