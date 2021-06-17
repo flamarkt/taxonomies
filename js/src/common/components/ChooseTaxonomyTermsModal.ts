@@ -1,4 +1,4 @@
-import {Vnode} from 'mithril';
+import {Children, Vnode} from 'mithril';
 import {ComponentAttrs} from 'flarum/common/Component';
 import Modal from 'flarum/common/components/Modal';
 import Model from 'flarum/common/Model';
@@ -9,13 +9,13 @@ import highlight from 'flarum/common/helpers/highlight';
 import classList from 'flarum/common/utils/classList';
 import ItemList from 'flarum/common/utils/ItemList';
 import extractText from 'flarum/common/utils/extractText';
-import KeyboardNavigatable from 'flarum/forum/utils/KeyboardNavigatable';
 
 import termLabel from '../helpers/termLabel';
 import taxonomyIcon from '../helpers/taxonomyIcon';
 import termToIdentifier from '../utils/termToIdentifier';
 import Term from '../models/Term';
 import Taxonomy from '../models/Taxonomy';
+import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 
 /**
  * Comparing objects directly is unreliable because we will be creating some new records as well
@@ -40,7 +40,7 @@ function isSameTerm(a: Term, b: Term) {
     return a.name() === b.name();
 }
 
-interface ChooseTaxonomyTermsModalAttrs extends ComponentAttrs {
+export interface ChooseTaxonomyTermsModalAttrs extends ComponentAttrs {
     resource: Model
     taxonomy: Taxonomy
     selectedTerms: Term[]
@@ -67,7 +67,6 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         if (this.attrs.selectedTerms) {
             this.attrs.selectedTerms.forEach(this.addTerm.bind(this));
         } else if (this.attrs.resource) {
-            console.log(this.attrs.resource.taxonomyTerms());
             this.attrs.resource.taxonomyTerms().forEach((term: Term) => {
                 if (term.taxonomy().id() === this.attrs.taxonomy.id()) {
                     this.addTerm(term);
@@ -133,11 +132,11 @@ export default class ChooseTaxonomyTermsModal extends Modal {
 
     title() {
         return this.attrs.resource
-            ? app.translator.trans('flamarkt-taxonomies.forum.modal.title.edit', {
+            ? app.translator.trans('flamarkt-taxonomies.lib.modal.title.edit', {
                 taxonomy: this.attrs.taxonomy.name(),
                 title: m('em', this.attrs.resource.title ? this.attrs.resource.title() : this.attrs.resource.displayName()),
             })
-            : app.translator.trans('flamarkt-taxonomies.forum.modal.title.new', {
+            : app.translator.trans('flamarkt-taxonomies.lib.modal.title.new', {
                 taxonomy: this.attrs.taxonomy.name(),
             });
     }
@@ -147,11 +146,11 @@ export default class ChooseTaxonomyTermsModal extends Modal {
 
         if (this.attrs.taxonomy.minTerms() && count < this.attrs.taxonomy.minTerms()) {
             const remaining = this.attrs.taxonomy.minTerms() - count;
-            return app.translator.trans('flamarkt-taxonomies.forum.modal.placeholder', {
+            return app.translator.trans('flamarkt-taxonomies.lib.modal.placeholder', {
                 count: remaining,
             });
         } else if (count === 0) {
-            return app.translator.trans('flamarkt-taxonomies.forum.modal.placeholderOptional');
+            return app.translator.trans('flamarkt-taxonomies.lib.modal.placeholderOptional');
         }
 
         return '';
@@ -228,7 +227,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
             disabled: this.attrs.taxonomy.minTerms() && this.selectedTerms.length < this.attrs.taxonomy.minTerms(),
             icon: 'fas fa-check',
             loading: this.saving,
-        }, app.translator.trans('flamarkt-taxonomies.forum.modal.submit'))), 10);
+        }, app.translator.trans('flamarkt-taxonomies.lib.modal.submit'))), 10);
 
         return items;
     }
@@ -248,8 +247,8 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         items.add('control', m('input.FormControl', {
             placeholder: extractText(this.getInstruction()),
             value: this.searchFilter,
-            oninput: event => {
-                this.searchFilter = event.target.value;
+            oninput: (event: Event) => {
+                this.searchFilter = (event.target as HTMLInputElement).value;
                 this.activeListIndex = 0;
             },
             onkeydown: this.navigator.navigate.bind(this.navigator),
@@ -269,7 +268,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         this.inputIsFocused = false;
     }
 
-    listAvailableTerms(terms: Term[]) {
+    listAvailableTerms(terms: Term[]): Children {
         return m('.Modal-footer', this.availableTerms === null ?
             LoadingIndicator.component() :
             m('ul.ChooseTaxonomyTermsModal-list.SelectTermList', {
@@ -291,7 +290,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
             onclick: this.toggleTerm.bind(this, term),
         }, [
             taxonomyIcon(term),
-            m('span.SelectTermListItem-name', term.exists ? highlight(term.name(), this.searchFilter) : app.translator.trans('flamarkt-taxonomies.forum.modal.custom', {
+            m('span.SelectTermListItem-name', term.exists ? highlight(term.name(), this.searchFilter) : app.translator.trans('flamarkt-taxonomies.lib.modal.custom', {
                 value: m('em', term.name()),
             })),
             term.description() ? m('span.SelectTermListItem-description', term.description()) : '',
@@ -318,7 +317,7 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         });
     }
 
-    select(e) {
+    select(e: KeyboardEvent) {
         const $element = this.getDomElement(this.activeListIndex);
 
         // If nothing matches, the user probably typed text that doesn't match anything
@@ -332,7 +331,8 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         // Ctrl + Enter submits the selection, just Enter completes the current entry
         if (e.metaKey || e.ctrlKey || $element.is('.selected')) {
             if (this.selectedTerms.length) {
-                this.$('form').submit();
+                // Calling .trigger() on the form with jQuery doesn't seem to trigger the onsubmit, so we'll just do that directly instead
+                this.onsubmit();
             }
         } else {
             $element[0].dispatchEvent(new Event('click'));
@@ -379,8 +379,10 @@ export default class ChooseTaxonomyTermsModal extends Modal {
         }
     }
 
-    onsubmit(event: Event) {
-        event.preventDefault();
+    onsubmit(event?: Event) {
+        if (event) {
+            event.preventDefault();
+        }
 
         if (this.attrs.resource) {
             this.saveResource();
@@ -416,7 +418,8 @@ export default class ChooseTaxonomyTermsModal extends Modal {
     }
 
     onsaved() {
-        if (app.current.matches(DiscussionPage)) {
+        // Need to check if DiscussionPage exists because in backoffice frontend the import will be undefined
+        if (DiscussionPage && app.current.matches(DiscussionPage)) {
             app.current.get('stream').update();
         }
         this.saving = false;

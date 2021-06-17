@@ -10,7 +10,7 @@ use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
-class UserTaxonomyGambit extends AbstractRegexGambit implements FilterInterface
+class ProductTaxonomyGambit extends AbstractRegexGambit implements FilterInterface
 {
     public function getGambitPattern(): string
     {
@@ -53,7 +53,7 @@ class UserTaxonomyGambit extends AbstractRegexGambit implements FilterInterface
          */
         $repository = resolve(TaxonomyRepository::class);
 
-        $taxonomy = $repository->findSlugOrFail($taxonomySlug, 'users');
+        $taxonomy = $repository->findSlugOrFail($taxonomySlug, 'products');
 
         $actor->assertCan('search', $taxonomy);
 
@@ -64,16 +64,16 @@ class UserTaxonomyGambit extends AbstractRegexGambit implements FilterInterface
         $query->where(function (Builder $query) use ($termSlugs, $termIdsMap, $negate) {
             foreach ($termSlugs as $slug) {
                 if ($slug === 'untagged') {
-                    $query->whereIn('users.id', function (Builder $query) {
-                        $query->select('user_id')
-                            ->from('flamarkt_taxonomy_term_user');
+                    $query->whereIn('flamarkt_products.id', function (Builder $query) {
+                        $query->select('product_id')
+                            ->from('flamarkt_product_taxonomy_term');
                     }, 'or', !$negate);
                 } else {
                     $id = $termIdsMap->get($slug);
 
-                    $query->whereIn('users.id', function (Builder $query) use ($id) {
-                        $query->select('user_id')
-                            ->from('flamarkt_taxonomy_term_user')
+                    $query->whereIn('flamarkt_products.id', function (Builder $query) use ($id) {
+                        $query->select('product_id')
+                            ->from('flamarkt_product_taxonomy_term')
                             ->where('term_id', $id);
                     }, 'or', $negate);
                 }

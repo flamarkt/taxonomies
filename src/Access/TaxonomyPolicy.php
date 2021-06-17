@@ -8,7 +8,7 @@ use Flarum\User\User;
 
 class TaxonomyPolicy extends AbstractPolicy
 {
-    public function canSeeAllTaxonomies(User $actor)
+    public function canSeeAllTaxonomies(User $actor): bool
     {
         // For now, it's all or nothing. If you are allowed to see or edit anything, we expose the full list of existing taxonomies
         return $actor->hasPermission('discussion.seeOwnTaxonomy') ||
@@ -17,12 +17,12 @@ class TaxonomyPolicy extends AbstractPolicy
             $actor->hasPermission('user.editOwnTaxonomy');
     }
 
-    public function search(User $actor, Taxonomy $taxonomy)
+    public function search(User $actor, Taxonomy $taxonomy): bool
     {
         return $this->canSeeAllTaxonomies($actor);
     }
 
-    public function listTerms(User $actor, Taxonomy $taxonomy)
+    public function listTerms(User $actor, Taxonomy $taxonomy): bool
     {
         return $this->canSeeAllTaxonomies($actor);
     }

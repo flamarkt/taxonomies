@@ -164,3 +164,51 @@
     box-shadow: none;
     color: inherit;
 }
+
+
+.ChooseTaxonomyTermsInput {
+    position: relative; // So we can place the dropdown menu
+}
+
+.ChooseTaxonomyTermsDropdown {
+    margin-bottom: 20px;
+
+    p {
+        // Above description
+        margin-top: 10px;
+    }
+
+    .Dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        display: block;
+    }
+}
+
+.ChooseTaxonomyTermsStatus {
+    width: 0;
+    position: relative;
+
+    .icon {
+        position: absolute;
+        right: 0;
+        padding: 12px;
+    }
+
+    .fa-check {
+        color: @alert-success-color;
+    }
+
+    .fa-times {
+        color: @error-color;
+    }
+
+    .LoadingIndicator-container {
+        position: absolute;
+        right: 0;
+        width: 36px;
+        height: 36px;
+    }
+}

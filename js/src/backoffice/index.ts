@@ -1,9 +1,12 @@
 import BackofficeNav from 'flamarkt/core/backoffice/components/BackofficeNav';
+import ProductShowPage from 'flamarkt/core/backoffice/pages/ProductShowPage';
 import {extend} from 'flarum/common/extend';
 import ItemList from 'flarum/common/utils/ItemList';
 import LinkButton from 'flarum/common/components/LinkButton';
 import TaxonomiesPage from './components/TaxonomiesPage';
 import addModels from '../common/addModels';
+import sortTaxonomies from '../common/utils/sortTaxonomies';
+import ChooseTaxonomyTermsDropdown from '../common/components/ChooseTaxonomyTermsDropdown';
 
 app.initializers.add('flamarkt-taxonomies', () => {
     addModels();
@@ -18,5 +21,25 @@ app.initializers.add('flamarkt-taxonomies', () => {
             href: app.route('taxonomies'),
             icon: 'fas fa-tags',
         }, app.translator.trans('flamarkt-taxonomies.admin.menu.title')));
+    });
+
+    extend(ProductShowPage.prototype, 'fields', function (items: ItemList) {
+        if (!this.product.exists || !this.product.attribute('canEditTaxonomies')) {
+            return;
+        }
+
+        sortTaxonomies(app.forum.taxonomies()).forEach(taxonomy => {
+            if (taxonomy.type() !== 'products') {
+                return;
+            }
+
+            items.add('taxonomy-' + taxonomy.slug(), m('.Form-group', [
+                m('label', taxonomy.name()),
+                m(ChooseTaxonomyTermsDropdown, {
+                    resource: this.product,
+                    taxonomy,
+                }),
+            ]), -100);
+        });
     });
 });

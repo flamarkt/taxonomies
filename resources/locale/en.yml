@@ -94,6 +94,14 @@ flamarkt-taxonomies:
         composer:
             choose: Choose {taxonomy}
 
+        discussion:
+            edit: Edit {taxonomy}
+
+        user:
+            nav: Taxonomies
+            edit: Edit {taxonomy}
+
+    lib:
         modal:
             title:
                 new: Choose {taxonomy} for your discussion
@@ -102,13 +110,6 @@ flamarkt-taxonomies:
             placeholderOptional: Choose...
             custom: Use {value}
             submit: OK
-
-        discussion:
-            edit: Edit {taxonomy}
-
-        user:
-            nav: Taxonomies
-            edit: Edit {taxonomy}
 
     ref:
         field:

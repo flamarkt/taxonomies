@@ -2,9 +2,12 @@
 
 namespace Flamarkt\Taxonomies;
 
+use Flamarkt\Core\Api\Controller as FlamarktController;
 use Flamarkt\Core\Api\Serializer\ProductSerializer;
 use Flamarkt\Core\Product\Event\Saving as ProductSaving;
 use Flamarkt\Core\Product\Product;
+use Flamarkt\Core\Product\ProductFilterer;
+use Flamarkt\Core\Product\ProductSearcher;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
@@ -26,7 +29,7 @@ return [
 
     (new Extend\Frontend('backoffice'))
         ->js(__DIR__ . '/js/dist/backoffice.js')
-        ->css(__DIR__ . '/resources/less/admin.less')
+        ->css(__DIR__ . '/resources/less/backoffice.less')
         ->route('/taxonomies', 'taxonomies.index'),
 
     (new Extend\Frontend('forum'))
@@ -49,6 +52,7 @@ return [
 
     (new Extend\Policy())
         ->modelPolicy(Discussion::class, Access\DiscussionPolicy::class)
+        ->modelPolicy(Product::class, Access\ProductPolicy::class)
         ->modelPolicy(Taxonomy::class, Access\TaxonomyPolicy::class)
         ->modelPolicy(User::class, Access\UserPolicy::class),
 
@@ -108,7 +112,11 @@ return [
             $dispatcher->listen(ProductSaving::class, function (ProductSaving $event) use ($handle) {
                 $handle($event->product, $event->actor, $event->data);
             });
-        }),
+        })
+        ->includeInController(FlamarktController\ProductIndexController::class)
+        ->includeInController(FlamarktController\ProductShowController::class)
+        ->includeInController(FlamarktController\ProductStoreController::class)
+        ->includeInController(FlamarktController\ProductUpdateController::class),
 
     (new Extend\Filter(DiscussionFilterer::class))
         ->addFilter(Gambits\DiscussionTaxonomyGambit::class),
@@ -119,4 +127,9 @@ return [
         ->addFilter(Gambits\UserTaxonomyGambit::class),
     (new Extend\SimpleFlarumSearch(UserSearcher::class))
         ->addGambit(Gambits\UserTaxonomyGambit::class),
+
+    (new Extend\Filter(ProductFilterer::class))
+        ->addFilter(Gambits\ProductTaxonomyGambit::class),
+    (new Extend\SimpleFlarumSearch(ProductSearcher::class))
+        ->addGambit(Gambits\ProductTaxonomyGambit::class),
 ];

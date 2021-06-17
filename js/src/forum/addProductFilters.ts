@@ -1,5 +1,6 @@
 import {extend} from 'flarum/common/extend';
 import ProductIndexLayout from 'flamarkt/core/forum/layouts/ProductIndexLayout';
+import ProductIndexPage from 'flamarkt/core/forum/pages/ProductIndexPage';
 import ItemList from 'flarum/common/utils/ItemList';
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 import TaxonomyDropdown from './components/TaxonomyDropdown';
@@ -13,7 +14,7 @@ export default function () {
                 taxonomy,
                 activeTermSlug: m.route.param()[taxonomy.slug()],
                 onchange: (term: Term) => {
-                    const params = m.route.param();
+                    const params = {...m.route.param()};
 
                     delete params.key;
 
@@ -32,6 +33,19 @@ export default function () {
                     m.route.set(app.route(routeName, params));
                 },
             }));
+        });
+    });
+
+    extend(ProductIndexPage.prototype, 'initState', function (state) {
+        const params = m.route.param();
+
+        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('products')).forEach(taxonomy => {
+            const filterTermSlug = params[taxonomy.slug()];
+
+            if (filterTermSlug) {
+                // Same implementation as addIndexFilters()
+                state.params.q = (state.params.q || '') + ' taxonomy:' + taxonomy.slug() + ':' + filterTermSlug;
+            }
         });
     });
 }

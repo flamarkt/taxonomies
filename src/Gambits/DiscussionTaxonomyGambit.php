@@ -55,7 +55,7 @@ class DiscussionTaxonomyGambit extends AbstractRegexGambit implements FilterInte
 
         $taxonomy = $repository->findSlugOrFail($taxonomySlug, 'discussions');
 
-        $actor->assertCan('searchDiscussions', $taxonomy);
+        $actor->assertCan('search', $taxonomy);
 
         $termIdsMap = $taxonomy->terms()
             ->whereIn('slug', $termSlugs)
