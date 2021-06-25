@@ -56,6 +56,10 @@ export default class ChooseTaxonomyTermsDropdown extends ChooseTaxonomyTermsModa
         document.addEventListener('mousedown', this.onmousedown);
     }
 
+    onbeforeremove() {
+        // Do nothing. Prevent parent method from running because it will try to access this.attrs.state which isn't set
+    }
+
     onremove(vnode: VnodeDOM<ChooseTaxonomyTermsModalAttrs, this>) {
         super.onremove(vnode);
 
