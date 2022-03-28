@@ -3,6 +3,7 @@ import app from 'flamarkt/backoffice/backoffice/app';
 import extractText from 'flarum/common/utils/extractText';
 import {slug} from 'flarum/common/utils/string';
 import withAttr from 'flarum/common/utils/withAttr';
+import ItemList from 'flarum/common/utils/ItemList';
 import AbstractEditModal, {AbstractEditModalAttrs} from './AbstractEditModal';
 import Term from '../../common/models/Term';
 import Taxonomy from '../../common/models/Taxonomy';
@@ -41,70 +42,80 @@ export default class EditTermModal extends AbstractEditModal<EditTermModalAttrs>
         return !this.attrs.term;
     }
 
-    form() {
-        return [
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.name')),
-                m('input.FormControl', {
-                    type: 'text',
-                    value: this.name,
-                    oninput: withAttr('value', (value: string) => {
-                        this.name = value;
-                        this.slug = slug(value);
-                        this.dirty = true;
-                    }),
+    form(): any {
+        return this.formItems().toArray();
+    }
+
+    formItems() {
+        const items = new ItemList();
+
+        items.add('name', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.name')),
+            m('input.FormControl', {
+                type: 'text',
+                value: this.name,
+                oninput: withAttr('value', (value: string) => {
+                    this.name = value;
+                    this.slug = slug(value);
+                    this.dirty = true;
                 }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.slug')),
-                m('input.FormControl', {
-                    type: 'text',
-                    value: this.slug,
-                    oninput: withAttr('value', (value: string) => {
-                        this.slug = value;
-                        this.dirty = true;
-                    }),
+            }),
+        ]));
+
+        items.add('slug', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.slug')),
+            m('input.FormControl', {
+                type: 'text',
+                value: this.slug,
+                oninput: withAttr('value', (value: string) => {
+                    this.slug = value;
+                    this.dirty = true;
                 }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.description')),
-                m('textarea.FormControl', {
-                    value: this.description,
-                    oninput: withAttr('value', (value: string) => {
-                        this.description = value;
-                        this.dirty = true;
-                    }),
+            }),
+        ]));
+
+        items.add('description', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.description')),
+            m('textarea.FormControl', {
+                value: this.description,
+                oninput: withAttr('value', (value: string) => {
+                    this.description = value;
+                    this.dirty = true;
                 }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.color')),
-                m('input.FormControl', {
-                    type: 'text',
-                    value: this.color,
-                    oninput: withAttr('value', (value: string) => {
-                        this.color = value;
-                        this.dirty = true;
-                    }),
+            }),
+        ]));
+
+        items.add('color', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.color')),
+            m('input.FormControl', {
+                type: 'text',
+                value: this.color,
+                oninput: withAttr('value', (value: string) => {
+                    this.color = value;
+                    this.dirty = true;
                 }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.icon')),
-                m('.helpText', app.translator.trans(this.translationPrefix() + 'field.iconDescription', {
-                    a: m('a', {
-                        href: 'https://fontawesome.com/icons?m=free',
-                        tabindex: -1,
-                    }),
-                })),
-                m('input.FormControl', {
-                    type: 'text',
-                    value: this.icon,
-                    oninput: withAttr('value', (value: string) => {
-                        this.icon = value;
-                        this.dirty = true;
-                    }),
+            }),
+        ]));
+
+        items.add('icon', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.icon')),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.iconDescription', {
+                a: m('a', {
+                    href: 'https://fontawesome.com/icons?m=free',
+                    tabindex: -1,
                 }),
-            ]),
-        ];
+            })),
+            m('input.FormControl', {
+                type: 'text',
+                value: this.icon,
+                oninput: withAttr('value', (value: string) => {
+                    this.icon = value;
+                    this.dirty = true;
+                }),
+            }),
+        ]));
+
+        return items;
     }
 
     ondelete() {

@@ -1,4 +1,6 @@
 import app from 'flamarkt/backoffice/backoffice/app';
+import {common} from '../common/compat';
+import {backoffice} from './compat';
 import BackofficeNav from 'flamarkt/backoffice/backoffice/components/BackofficeNav';
 import ProductShowPage from 'flamarkt/core/backoffice/pages/ProductShowPage';
 import {extend} from 'flarum/common/extend';
@@ -7,6 +9,11 @@ import TaxonomiesPage from './components/TaxonomiesPage';
 import addModels from '../common/addModels';
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 import ChooseTaxonomyTermsDropdown from '../common/components/ChooseTaxonomyTermsDropdown';
+
+export {
+    common,
+    backoffice,
+};
 
 app.initializers.add('flamarkt-taxonomies', () => {
     addModels();

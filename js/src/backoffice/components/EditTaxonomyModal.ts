@@ -6,6 +6,7 @@ import Select from 'flarum/common/components/Select';
 import {slug} from 'flarum/common/utils/string';
 import withAttr from 'flarum/common/utils/withAttr';
 import extractText from 'flarum/common/utils/extractText';
+import ItemList from 'flarum/common/utils/ItemList';
 
 export interface EditTaxonomyModalAttrs extends AbstractEditModalAttrs {
     taxonomy: Taxonomy
@@ -56,7 +57,13 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
         return !this.attrs.taxonomy;
     }
 
-    form() {
+    form(): any {
+        return this.formItems().toArray();
+    }
+
+    formItems() {
+        const items = new ItemList();
+
         const options: any = {
             discussions: app.translator.trans(this.translationPrefix() + 'type-options.discussions'),
             users: app.translator.trans(this.translationPrefix() + 'type-options.users'),
@@ -66,209 +73,220 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
             options.products = app.translator.trans(this.translationPrefix() + 'type-options.products');
         }
 
-        return [
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.type')),
-                m('.helpText', app.translator.trans(this.translationPrefix() + 'field.typeDescription')),
-                Select.component({
-                    options,
-                    value: this.type,
-                    onchange: (value: string) => {
-                        this.type = value;
+        items.add('type', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.type')),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.typeDescription')),
+            Select.component({
+                options,
+                value: this.type,
+                onchange: (value: string) => {
+                    this.type = value;
+                    this.dirty = true;
+                },
+                disabled: !this.isNew(),
+            }),
+        ]));
+
+        items.add('name', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.name')),
+            m('input.FormControl', {
+                type: 'text',
+                value: this.name,
+                oninput: withAttr('value', (value: string) => {
+                    this.name = value;
+                    this.slug = slug(value);
+                    this.dirty = true;
+                }),
+            }),
+        ]));
+
+        items.add('slug', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.slug')),
+            m('input.FormControl', {
+                type: 'text',
+                value: this.slug,
+                oninput: withAttr('value', (value: string) => {
+                    this.slug = value;
+                    this.dirty = true;
+                }),
+            }),
+        ]));
+
+        items.add('description', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.description')),
+            m('textarea.FormControl', {
+                value: this.description,
+                oninput: withAttr('value', (value: string) => {
+                    this.description = value;
+                    this.dirty = true;
+                }),
+            }),
+        ]));
+
+        items.add('color', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.color')),
+            m('input.FormControl', {
+                type: 'text',
+                value: this.color,
+                oninput: withAttr('value', (value: string) => {
+                    this.color = value;
+                    this.dirty = true;
+                }),
+            }),
+        ]));
+
+        items.add('icon', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.icon')),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.iconDescription', {
+                a: m('a', {
+                    href: 'https://fontawesome.com/icons?m=free',
+                    tabindex: -1,
+                }),
+            })),
+            m('input.FormControl', {
+                type: 'text',
+                value: this.icon,
+                oninput: withAttr('value', (value: string) => {
+                    this.icon = value;
+                    this.dirty = true;
+                }),
+            }),
+        ]));
+
+        items.add('show-label', m('.Form-group', [
+            m('label', [
+                m('input', {
+                    type: 'checkbox',
+                    checked: this.showLabel,
+                    onchange: () => {
+                        this.showLabel = !this.showLabel;
                         this.dirty = true;
                     },
-                    disabled: !this.isNew(),
                 }),
+                ' ',
+                app.translator.trans(this.translationPrefix() + 'field.showLabel'),
             ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.name')),
-                m('input.FormControl', {
-                    type: 'text',
-                    value: this.name,
-                    oninput: withAttr('value', (value: string) => {
-                        this.name = value;
-                        this.slug = slug(value);
-                        this.dirty = true;
-                    }),
-                }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.slug')),
-                m('input.FormControl', {
-                    type: 'text',
-                    value: this.slug,
-                    oninput: withAttr('value', (value: string) => {
-                        this.slug = value;
-                        this.dirty = true;
-                    }),
-                }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.description')),
-                m('textarea.FormControl', {
-                    value: this.description,
-                    oninput: withAttr('value', (value: string) => {
-                        this.description = value;
-                        this.dirty = true;
-                    }),
-                }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.color')),
-                m('input.FormControl', {
-                    type: 'text',
-                    value: this.color,
-                    oninput: withAttr('value', (value: string) => {
-                        this.color = value;
-                        this.dirty = true;
-                    }),
-                }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.icon')),
-                m('.helpText', app.translator.trans(this.translationPrefix() + 'field.iconDescription', {
-                    a: m('a', {
-                        href: 'https://fontawesome.com/icons?m=free',
-                        tabindex: -1,
-                    }),
-                })),
-                m('input.FormControl', {
-                    type: 'text',
-                    value: this.icon,
-                    oninput: withAttr('value', (value: string) => {
-                        this.icon = value;
-                        this.dirty = true;
-                    }),
-                }),
-            ]),
-            m('.Form-group', [
-                m('label', [
-                    m('input', {
-                        type: 'checkbox',
-                        checked: this.showLabel,
-                        onchange: () => {
-                            this.showLabel = !this.showLabel;
-                            this.dirty = true;
-                        },
-                    }),
-                    ' ',
-                    app.translator.trans(this.translationPrefix() + 'field.showLabel'),
-                ]),
-            ]),
-            m('.Form-group', [
-                m('label', [
-                    m('input', {
-                        type: 'checkbox',
-                        checked: this.showFilter,
-                        onchange: () => {
-                            this.showFilter = !this.showFilter;
-                            this.dirty = true;
-                        },
-                    }),
-                    ' ',
-                    app.translator.trans(this.translationPrefix() + 'field.showFilter'),
-                ]),
-            ]),
-            m('.Form-group', [
-                m('label', [
-                    m('input', {
-                        type: 'checkbox',
-                        checked: this.allowCustomValues,
-                        onchange: () => {
-                            this.allowCustomValues = !this.allowCustomValues;
-                            this.dirty = true;
-                        },
-                    }),
-                    ' ',
-                    app.translator.trans(this.translationPrefix() + 'field.allowCustomValues'),
-                ]),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.customValueValidation')),
-                Select.component({
-                    options: {
-                        '': app.translator.trans(this.translationPrefix() + 'validation-options.default'),
-                        alpha_num: app.translator.trans(this.translationPrefix() + 'validation-options.alpha_num'),
-                        alpha_dash: app.translator.trans(this.translationPrefix() + 'validation-options.alpha_dash'),
-                        regex: app.translator.trans(this.translationPrefix() + 'validation-options.regex'),
-                    },
-                    value: this.customValueValidation.indexOf('/') === 0 ? 'regex' : this.customValueValidation,
-                    onchange: (value: string) => {
-                        this.customValueValidation = value === 'regex' ? '//' : value;
+        ]));
+
+        items.add('show-filter', m('.Form-group', [
+            m('label', [
+                m('input', {
+                    type: 'checkbox',
+                    checked: this.showFilter,
+                    onchange: () => {
+                        this.showFilter = !this.showFilter;
                         this.dirty = true;
                     },
+                }),
+                ' ',
+                app.translator.trans(this.translationPrefix() + 'field.showFilter'),
+            ]),
+        ]));
+
+        items.add('allow-custom', m('.Form-group', [
+            m('label', [
+                m('input', {
+                    type: 'checkbox',
+                    checked: this.allowCustomValues,
+                    onchange: () => {
+                        this.allowCustomValues = !this.allowCustomValues;
+                        this.dirty = true;
+                    },
+                }),
+                ' ',
+                app.translator.trans(this.translationPrefix() + 'field.allowCustomValues'),
+            ]),
+        ]));
+
+        items.add('validation', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.customValueValidation')),
+            Select.component({
+                options: {
+                    '': app.translator.trans(this.translationPrefix() + 'validation-options.default'),
+                    alpha_num: app.translator.trans(this.translationPrefix() + 'validation-options.alpha_num'),
+                    alpha_dash: app.translator.trans(this.translationPrefix() + 'validation-options.alpha_dash'),
+                    regex: app.translator.trans(this.translationPrefix() + 'validation-options.regex'),
+                },
+                value: this.customValueValidation.indexOf('/') === 0 ? 'regex' : this.customValueValidation,
+                onchange: (value: string) => {
+                    this.customValueValidation = value === 'regex' ? '//' : value;
+                    this.dirty = true;
+                },
+                disabled: !this.allowCustomValues,
+            }),
+            this.customValueValidation.indexOf('/') === 0 ? m('.TaxonomyRegexInput', [
+                m('span', '/'),
+                m('input.FormControl', {
+                    type: 'text',
+                    value: this.customValueValidation.split('/')[1],
+                    oninput: withAttr('value', (value: string) => {
+                        this.customValueValidation = '/' + value + '/' + this.customValueValidation.split('/')[2];
+                        this.dirty = true;
+                    }),
                     disabled: !this.allowCustomValues,
                 }),
-                this.customValueValidation.indexOf('/') === 0 ? m('.TaxonomyRegexInput', [
-                    m('span', '/'),
-                    m('input.FormControl', {
-                        type: 'text',
-                        value: this.customValueValidation.split('/')[1],
-                        oninput: withAttr('value', (value: string) => {
-                            this.customValueValidation = '/' + value + '/' + this.customValueValidation.split('/')[2];
-                            this.dirty = true;
-                        }),
-                        disabled: !this.allowCustomValues,
-                    }),
-                    m('span', '/'),
-                    m('input.FormControl', {
-                        type: 'text',
-                        value: this.customValueValidation.split('/')[2],
-                        oninput: withAttr('value', (value: string) => {
-                            this.customValueValidation = '/' + this.customValueValidation.split('/')[1] + '/' + value;
-                            this.dirty = true;
-                        }),
-                        disabled: !this.allowCustomValues,
-                    }),
-                ]) : null,
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.customValueSlugger')),
-                m('.helpText', app.translator.trans(this.translationPrefix() + 'field.customValueSluggerDescription')),
-                Select.component({
-                    options: {
-                        random: app.translator.trans(this.translationPrefix() + 'slugger-options.random'),
-                        alpha_dash: app.translator.trans(this.translationPrefix() + 'slugger-options.alpha_dash'),
-                        transliterator: app.translator.trans(this.translationPrefix() + 'slugger-options.transliterator'),
-                    },
-                    value: this.customValueSlugger,
-                    onchange: (value: string) => {
-                        this.customValueSlugger = value;
+                m('span', '/'),
+                m('input.FormControl', {
+                    type: 'text',
+                    value: this.customValueValidation.split('/')[2],
+                    oninput: withAttr('value', (value: string) => {
+                        this.customValueValidation = '/' + this.customValueValidation.split('/')[1] + '/' + value;
                         this.dirty = true;
-                    },
+                    }),
                     disabled: !this.allowCustomValues,
                 }),
-            ]),
-            m('.Form-group', [
-                m('label', app.translator.trans(this.translationPrefix() + 'field.countRequired')),
-                m('.helpText', app.translator.trans(this.translationPrefix() + 'field.countRequiredDescription')),
-                m('.TaxonomyModal-rangeInput', [
-                    m('input.FormControl', {
-                        type: 'number',
-                        min: 0,
-                        step: 1,
-                        value: this.minTerms,
-                        oninput: withAttr('value', (value: string) => {
-                            this.minTerms = parseInt(value) || '';
-                            this.dirty = true;
-                        }),
+            ]) : null,
+        ]));
+
+        items.add('slugger', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.customValueSlugger')),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.customValueSluggerDescription')),
+            Select.component({
+                options: {
+                    random: app.translator.trans(this.translationPrefix() + 'slugger-options.random'),
+                    alpha_dash: app.translator.trans(this.translationPrefix() + 'slugger-options.alpha_dash'),
+                    transliterator: app.translator.trans(this.translationPrefix() + 'slugger-options.transliterator'),
+                },
+                value: this.customValueSlugger,
+                onchange: (value: string) => {
+                    this.customValueSlugger = value;
+                    this.dirty = true;
+                },
+                disabled: !this.allowCustomValues,
+            }),
+        ]));
+
+        items.add('field-counts', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.countRequired')),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.countRequiredDescription')),
+            m('.TaxonomyModal-rangeInput', [
+                m('input.FormControl', {
+                    type: 'number',
+                    min: 0,
+                    step: 1,
+                    value: this.minTerms,
+                    oninput: withAttr('value', (value: string) => {
+                        this.minTerms = parseInt(value) || '';
+                        this.dirty = true;
                     }),
-                    ' ',
-                    app.translator.trans(this.translationPrefix() + 'field.rangeSeparatorText'),
-                    ' ',
-                    m('input.FormControl', {
-                        type: 'number',
-                        min: 0,
-                        step: 1,
-                        value: this.maxTerms,
-                        oninput: withAttr('value', (value: string) => {
-                            this.maxTerms = parseInt(value) || '';
-                            this.dirty = true;
-                        }),
+                }),
+                ' ',
+                app.translator.trans(this.translationPrefix() + 'field.rangeSeparatorText'),
+                ' ',
+                m('input.FormControl', {
+                    type: 'number',
+                    min: 0,
+                    step: 1,
+                    value: this.maxTerms,
+                    oninput: withAttr('value', (value: string) => {
+                        this.maxTerms = parseInt(value) || '';
+                        this.dirty = true;
                     }),
-                ]),
+                }),
             ]),
-        ];
+        ]));
+
+        return items;
     }
 
     ondelete() {

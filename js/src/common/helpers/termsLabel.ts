@@ -4,7 +4,7 @@ import termLabel from './termLabel';
 import sortTerms from '../utils/sortTerms';
 import Term from '../models/Term';
 
-export default function tagsLabel(terms: Term[], attrs: Attributes = {}) {
+export default function termsLabel(terms: Term[], attrs: Attributes = {}) {
     const children: Vnode[] = [];
     const discussionLink = extract(attrs, 'discussionLink');
     const userLink = extract(attrs, 'userLink');
