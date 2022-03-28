@@ -1,4 +1,5 @@
 import {Vnode} from 'mithril';
+import app from 'flarum/admin/app';
 import {extend} from 'flarum/common/extend';
 import PermissionDropdown from 'flarum/admin/components/PermissionDropdown';
 import Button from 'flarum/common/components/Button';
@@ -8,7 +9,7 @@ const translationPrefix = 'flamarkt-taxonomies.admin.permissions.';
 // Since not activated / suspended users are considered guests, we allow a guest option on some settings
 // However showing "Everyone"/"Members" is just confusing, so we will alter the labels on those permissions
 export default function (permissionsWhereEveryoneMeansDisabledUsers: string[]) {
-    extend(PermissionDropdown.prototype, 'view', function (this: PermissionDropdown, vdom: Vnode) {
+    extend(PermissionDropdown.prototype, 'view', function (vdom) {
         if (permissionsWhereEveryoneMeansDisabledUsers.indexOf(this.attrs.permission) === -1) {
             return;
         }

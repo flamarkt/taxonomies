@@ -1,7 +1,7 @@
+import {Attributes} from 'mithril';
 import classList from 'flarum/common/utils/classList';
 import Term from '../models/Term';
 import Taxonomy from '../models/Taxonomy';
-import {Attributes} from 'mithril';
 
 interface Settings {
     useColor?: boolean

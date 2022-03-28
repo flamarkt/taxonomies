@@ -1,6 +1,6 @@
+import app from 'flarum/forum/app';
 import {extend, override} from 'flarum/common/extend';
 import DiscussionComposer from 'flarum/forum/components/DiscussionComposer';
-import ItemList from 'flarum/common/utils/ItemList';
 import icon from 'flarum/common/helpers/icon';
 import ChooseTaxonomyTermsModal from '../common/components/ChooseTaxonomyTermsModal';
 import termsLabel from '../common/helpers/termsLabel';
@@ -9,13 +9,15 @@ import termToIdentifier from '../common/utils/termToIdentifier';
 import Term from '../common/models/Term';
 
 export default function () {
-    extend(DiscussionComposer.prototype, 'oninit', function (this: DiscussionComposer) {
+    extend(DiscussionComposer.prototype, 'oninit', function () {
         this.selectedTaxonomyTerms = {};
     });
 
-    extend(DiscussionComposer.prototype, 'headerItems', function (this: DiscussionComposer, items: ItemList) {
+    extend(DiscussionComposer.prototype, 'headerItems', function (items) {
         sortTaxonomies(app.forum.taxonomies()).forEach(taxonomy => {
-            if (taxonomy.type() !== 'discussions') {
+            const taxonomyId = taxonomy.id();
+
+            if (taxonomy.type() !== 'discussions' || !taxonomyId) {
                 return;
             }
 
@@ -23,46 +25,48 @@ export default function () {
                     onclick: () => {
                         app.modal.show(ChooseTaxonomyTermsModal, {
                             taxonomy,
-                            selectedTerms: (this.selectedTaxonomyTerms[taxonomy.id()] || []).slice(0),
+                            selectedTerms: (this.selectedTaxonomyTerms[taxonomyId] || []).slice(0),
                             onsubmit: (terms: Term[]) => {
-                                this.selectedTaxonomyTerms[taxonomy.id()] = terms;
+                                this.selectedTaxonomyTerms[taxonomy.id()!] = terms;
                                 this.$('textarea').trigger('focus');
                             },
                         });
                     },
-                }, this.selectedTaxonomyTerms[taxonomy.id()] && this.selectedTaxonomyTerms[taxonomy.id()].length
-                ? termsLabel(this.selectedTaxonomyTerms[taxonomy.id()], {
-                    taxonomy,
-                })
-                : m('span.TaxonomyLabel.untagged', [
-                    taxonomy.icon() ? [icon(taxonomy.icon()), ' '] : null,
-                    app.translator.trans('flamarkt-taxonomies.forum.composer.choose', {
-                        taxonomy: taxonomy.name(),
-                    }),
-                ])
+                }, this.selectedTaxonomyTerms[taxonomyId] && this.selectedTaxonomyTerms[taxonomyId].length
+                    ? termsLabel(this.selectedTaxonomyTerms[taxonomyId], {
+                        taxonomy,
+                    })
+                    : m('span.TaxonomyLabel.untagged', [
+                        taxonomy.icon() ? [icon(taxonomy.icon()), ' '] : null,
+                        app.translator.trans('flamarkt-taxonomies.forum.composer.choose', {
+                            taxonomy: taxonomy.name(),
+                        }),
+                    ])
             ), 9); // Tags uses 10, we add ours right to the tagson the right of the tags
         });
     });
 
-    override(DiscussionComposer.prototype, 'onsubmit', function (this: DiscussionComposer, original: any) {
+    override(DiscussionComposer.prototype, 'onsubmit', function (original) {
         // Zero timeout to change the execution thread and let the modal close in TagDiscussionModal / ChooseTaxonomyTermsModal
         // before we try opening another one
         const callbacks: ((resolve: () => void) => void)[] = [];
 
         sortTaxonomies(app.forum.taxonomies()).forEach(taxonomy => {
-            if (taxonomy.type() !== 'discussions') {
+            const taxonomyId = taxonomy.id();
+
+            if (taxonomy.type() !== 'discussions' || !taxonomyId) {
                 return;
             }
 
-            const count = (this.selectedTaxonomyTerms[taxonomy.id()] || []).length;
+            const count = (this.selectedTaxonomyTerms[taxonomyId] || []).length;
 
             if (taxonomy.minTerms() && count < taxonomy.minTerms()) {
                 callbacks.push(resolve => {
                     app.modal.show(ChooseTaxonomyTermsModal, {
                         taxonomy,
-                        selectedTags: (this.selectedTaxonomyTerms[taxonomy.id()] || []).slice(0),
+                        selectedTags: (this.selectedTaxonomyTerms[taxonomyId] || []).slice(0),
                         onsubmit: (terms: Term[]) => {
-                            this.selectedTaxonomyTerms[taxonomy.id()] = terms;
+                            this.selectedTaxonomyTerms[taxonomyId] = terms;
                             resolve();
                         },
                     });
@@ -104,23 +108,25 @@ export default function () {
         }
     });
 
-    extend(DiscussionComposer.prototype, 'data', function (this: DiscussionComposer, data: any) {
+    extend(DiscussionComposer.prototype, 'data', function (data) {
         const taxonomyData: any[] = [];
 
         // We put all term IDs from all taxonomies together for the request
         (app.forum.taxonomies() || []).forEach(taxonomy => {
-            if (taxonomy.type() !== 'discussions') {
+            const taxonomyId = taxonomy.id();
+
+            if (taxonomy.type() !== 'discussions' || !taxonomyId) {
                 return;
             }
 
-            if (this.selectedTaxonomyTerms[taxonomy.id()] && this.selectedTaxonomyTerms[taxonomy.id()].length) {
+            if (this.selectedTaxonomyTerms[taxonomyId] && this.selectedTaxonomyTerms[taxonomyId].length) {
                 taxonomyData.push({
                     verbatim: true, // Flarum workaround, defined in flamarkt/core
                     type: 'flamarkt-taxonomies',
-                    id: taxonomy.id(),
+                    id: taxonomyId,
                     relationships: {
                         terms: {
-                            data: this.selectedTaxonomyTerms[taxonomy.id()].map(termToIdentifier),
+                            data: this.selectedTaxonomyTerms[taxonomyId].map(termToIdentifier),
                         },
                     },
                 });

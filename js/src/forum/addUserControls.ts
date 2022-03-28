@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import {extend} from 'flarum/common/extend';
 import UserControls from 'flarum/forum/utils/UserControls';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -9,7 +10,7 @@ import ChooseTaxonomyTermsModal from '../common/components/ChooseTaxonomyTermsMo
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 
 export default function () {
-    extend(UserControls, 'userControls', function (items: ItemList, user: User) {
+    extend(UserControls, 'userControls', function (items: ItemList<any>, user: User) {
         if (!user.attribute('canEditTaxonomies')) {
             return;
         }
@@ -31,7 +32,7 @@ export default function () {
         });
     });
 
-    extend(UserPage.prototype, 'navItems', function (this: UserPage, items: ItemList) {
+    extend(UserPage.prototype, 'navItems', function (items) {
         const userTaxonomiesExist = sortTaxonomies(app.forum.taxonomies()).some(taxonomy => {
             return taxonomy.type() === 'users';
         });

@@ -1,3 +1,4 @@
+import app from 'flarum/common/app';
 import Discussion from 'flarum/common/models/Discussion';
 import Forum from 'flarum/common/models/Forum';
 import User from 'flarum/common/models/User';
@@ -13,5 +14,8 @@ export default function () {
     Forum.prototype.taxonomies = Model.hasMany('taxonomies');
     Discussion.prototype.taxonomyTerms = Model.hasMany('taxonomyTerms');
     User.prototype.taxonomyTerms = Model.hasMany('taxonomyTerms');
-    Product.prototype.taxonomyTerms = Model.hasMany('taxonomyTerms');
+
+    if (Product) {
+        Product.prototype.taxonomyTerms = Model.hasMany('taxonomyTerms');
+    }
 }

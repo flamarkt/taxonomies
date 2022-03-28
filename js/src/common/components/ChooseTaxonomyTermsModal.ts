@@ -1,6 +1,7 @@
 import {Children, Vnode} from 'mithril';
-import {ComponentAttrs} from 'flarum/common/Component';
-import Modal from 'flarum/common/components/Modal';
+import app from 'flarum/common/app';
+import {ApiPayloadPlural} from 'flarum/common/Store';
+import Modal, {IInternalModalAttrs} from 'flarum/common/components/Modal';
 import Model from 'flarum/common/Model';
 import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import Button from 'flarum/common/components/Button';
@@ -10,12 +11,13 @@ import classList from 'flarum/common/utils/classList';
 import ItemList from 'flarum/common/utils/ItemList';
 import extractText from 'flarum/common/utils/extractText';
 
+import KeyboardNavigatable from 'flamarkt/backoffice/common/utils/KeyboardNavigatable';
+
 import termLabel from '../helpers/termLabel';
 import taxonomyIcon from '../helpers/taxonomyIcon';
 import termToIdentifier from '../utils/termToIdentifier';
 import Term from '../models/Term';
 import Taxonomy from '../models/Taxonomy';
-import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 
 /**
  * Comparing objects directly is unreliable because we will be creating some new records as well
@@ -40,7 +42,7 @@ function isSameTerm(a: Term, b: Term) {
     return a.name() === b.name();
 }
 
-export interface ChooseTaxonomyTermsModalAttrs extends ComponentAttrs {
+export interface ChooseTaxonomyTermsModalAttrs extends IInternalModalAttrs {
     resource: Model
     taxonomy: Taxonomy
     selectedTerms: Term[]
@@ -50,7 +52,7 @@ export interface ChooseTaxonomyTermsModalAttrs extends ComponentAttrs {
 /**
  * Based on Flarum's TagDiscussionModal
  */
-export default class ChooseTaxonomyTermsModal extends Modal {
+export default class ChooseTaxonomyTermsModal extends Modal<ChooseTaxonomyTermsModalAttrs> {
     availableTerms: Term[] | null = null;
     selectedTerms: Term[] = [];
     searchFilter: string = '';
@@ -58,8 +60,6 @@ export default class ChooseTaxonomyTermsModal extends Modal {
     inputIsFocused: boolean = false;
     saving: boolean = false;
     navigator!: KeyboardNavigatable;
-
-    attrs!: ChooseTaxonomyTermsModalAttrs
 
     oninit(vnode: Vnode<ChooseTaxonomyTermsModalAttrs, this>) {
         super.oninit(vnode);
@@ -74,11 +74,11 @@ export default class ChooseTaxonomyTermsModal extends Modal {
             });
         }
 
-        app.request({
+        app.request<ApiPayloadPlural>({
             method: 'GET',
             url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiEndpoint() + '/terms',
         }).then(result => {
-            this.availableTerms = app.store.pushPayload(result);
+            this.availableTerms = app.store.pushPayload<Term[]>(result);
 
             m.redraw();
         });

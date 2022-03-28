@@ -1,20 +1,19 @@
 import {Vnode} from 'mithril';
-import AbstractEditModal from './AbstractEditModal';
+import app from 'flamarkt/backoffice/backoffice/app';
+import AbstractEditModal, {AbstractEditModalAttrs} from './AbstractEditModal';
 import Taxonomy from '../../common/models/Taxonomy';
-import {ComponentAttrs} from 'flarum/common/Component';
 import Select from 'flarum/common/components/Select';
 import {slug} from 'flarum/common/utils/string';
 import withAttr from 'flarum/common/utils/withAttr';
 import extractText from 'flarum/common/utils/extractText';
 
-interface EditTaxonomyModalAttrs extends ComponentAttrs {
+export interface EditTaxonomyModalAttrs extends AbstractEditModalAttrs {
     taxonomy: Taxonomy
     onsave?: (taxonomy: Taxonomy) => void
     ondelete?: () => void
 }
 
-// @ts-ignore Modal.view not type-hinted
-export default class EditTaxonomyModal extends AbstractEditModal {
+export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyModalAttrs> {
     type!: string
     name!: string
     slug!: string
@@ -29,14 +28,12 @@ export default class EditTaxonomyModal extends AbstractEditModal {
     minTerms!: number | string // Needs string because we leave the field empty for null
     maxTerms!: number | string
 
-    attrs!: EditTaxonomyModalAttrs
-
     oninit(vnode: Vnode<EditTaxonomyModalAttrs, this>) {
         super.oninit(vnode);
 
         const {taxonomy} = this.attrs;
 
-        this.type = taxonomy ? taxonomy.type() : 'products';
+        this.type = taxonomy ? taxonomy.type() : 'discussions';
         this.name = taxonomy ? taxonomy.name() : '';
         this.slug = taxonomy ? taxonomy.slug() : '';
         this.description = taxonomy ? taxonomy.description() : '';
@@ -60,16 +57,21 @@ export default class EditTaxonomyModal extends AbstractEditModal {
     }
 
     form() {
+        const options: any = {
+            discussions: app.translator.trans(this.translationPrefix() + 'type-options.discussions'),
+            users: app.translator.trans(this.translationPrefix() + 'type-options.users'),
+        };
+
+        if ('flamarkt-core' in flarum.extensions || this.type === 'products') {
+            options.products = app.translator.trans(this.translationPrefix() + 'type-options.products');
+        }
+
         return [
             m('.Form-group', [
                 m('label', app.translator.trans(this.translationPrefix() + 'field.type')),
                 m('.helpText', app.translator.trans(this.translationPrefix() + 'field.typeDescription')),
                 Select.component({
-                    options: {
-                        products: app.translator.trans(this.translationPrefix() + 'type-options.products'),
-                        discussions: app.translator.trans(this.translationPrefix() + 'type-options.discussions'),
-                        users: app.translator.trans(this.translationPrefix() + 'type-options.users'),
-                    },
+                    options,
                     value: this.type,
                     onchange: (value: string) => {
                         this.type = value;
@@ -315,7 +317,7 @@ export default class EditTaxonomyModal extends AbstractEditModal {
             max_terms: this.maxTerms,
         }, {
             errorHandler: this.onerror.bind(this),
-        }).then(() => {
+        }).then(record => {
             app.modal.close();
 
             if (this.attrs.onsave) {

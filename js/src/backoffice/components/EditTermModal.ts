@@ -1,28 +1,25 @@
 import {Vnode} from 'mithril';
+import app from 'flamarkt/backoffice/backoffice/app';
 import extractText from 'flarum/common/utils/extractText';
 import {slug} from 'flarum/common/utils/string';
 import withAttr from 'flarum/common/utils/withAttr';
-import AbstractEditModal from './AbstractEditModal';
-import {ComponentAttrs} from 'flarum/common/Component';
+import AbstractEditModal, {AbstractEditModalAttrs} from './AbstractEditModal';
 import Term from '../../common/models/Term';
 import Taxonomy from '../../common/models/Taxonomy';
 
-interface EditTermModalAttrs extends ComponentAttrs {
+interface EditTermModalAttrs extends AbstractEditModalAttrs {
     term: Term
     taxonomy: Taxonomy
     onsave?: (term: Term) => void
     ondelete?: () => void
 }
 
-// @ts-ignore Modal.view not type-hinted
-export default class EditTermModal extends AbstractEditModal {
+export default class EditTermModal extends AbstractEditModal<EditTermModalAttrs> {
     name!: string
     slug!: string
     description!: string
     color!: string
     icon!: string
-
-    attrs!: EditTermModalAttrs
 
     oninit(vnode: Vnode<EditTermModalAttrs, this>) {
         super.oninit(vnode);
@@ -154,7 +151,7 @@ export default class EditTermModal extends AbstractEditModal {
             description: this.description,
             color: this.color,
             icon: this.icon,
-        }, options).then(() => {
+        }, options).then(record => {
             app.modal.close();
 
             if (this.attrs.onsave) {

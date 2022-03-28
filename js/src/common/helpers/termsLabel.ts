@@ -1,8 +1,8 @@
+import {Attributes, Vnode} from 'mithril';
 import extract from 'flarum/common/utils/extract';
 import termLabel from './termLabel';
 import sortTerms from '../utils/sortTerms';
 import Term from '../models/Term';
-import {Attributes, Vnode} from 'mithril';
 
 export default function tagsLabel(terms: Term[], attrs: Attributes = {}) {
     const children: Vnode[] = [];

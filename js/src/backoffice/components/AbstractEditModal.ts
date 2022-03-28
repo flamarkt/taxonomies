@@ -1,8 +1,13 @@
 import {Children} from 'mithril';
-import Modal from 'flarum/common/components/Modal';
+import app from 'flamarkt/backoffice/backoffice/app';
+import Modal, {IInternalModalAttrs} from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 
-export default abstract class AbstractEditModal extends Modal {
+export interface AbstractEditModalAttrs extends IInternalModalAttrs {
+    // nothing special, but it's easier to import a parent class from here from the sub classes
+}
+
+export default abstract class AbstractEditModal<ModalAttrs extends AbstractEditModalAttrs = AbstractEditModalAttrs> extends Modal<ModalAttrs> {
     dirty: boolean = false;
 
     className() {

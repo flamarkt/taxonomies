@@ -1,9 +1,11 @@
 import {Vnode} from 'mithril';
+import app from 'flamarkt/backoffice/backoffice/app';
 import {ComponentAttrs} from 'flarum/common/Component';
+import {ApiPayloadPlural} from 'flarum/common/Store';
 import Page from 'flarum/common/components/Page';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-import Sortable from 'flamarkt/core/common/components/Sortable';
+import Sortable from 'flamarkt/backoffice/common/components/Sortable';
 import sortTaxonomies from '../../common/utils/sortTaxonomies';
 import TaxonomyTermsList from './TaxonomyTermsList';
 import EditTaxonomyModal from './EditTaxonomyModal';
@@ -17,11 +19,11 @@ export default class TaxonomiesPage extends Page {
     oninit(vnode: Vnode<ComponentAttrs, this>) {
         super.oninit(vnode);
 
-        app.request({
+        app.request<ApiPayloadPlural>({
             method: 'GET',
             url: app.forum.attribute('apiUrl') + '/flamarkt/taxonomies',
         }).then(result => {
-            this.taxonomies = app.store.pushPayload(result);
+            this.taxonomies = app.store.pushPayload<Taxonomy[]>(result);
             m.redraw();
         });
     }
@@ -42,14 +44,14 @@ export default class TaxonomiesPage extends Page {
                 onsort: (origin: number, destination: number) => {
                     taxonomies.splice(destination, 0, ...taxonomies.splice(origin, 1));
 
-                    app.request({
+                    app.request<ApiPayloadPlural>({
                         method: 'POST',
                         url: app.forum.attribute('apiUrl') + '/flamarkt/taxonomies/order',
                         body: {
                             order: taxonomies.map(taxonomy => taxonomy.id()),
                         },
                     }).then(result => {
-                        this.taxonomies = app.store.pushPayload(result);
+                        this.taxonomies = app.store.pushPayload<Taxonomy[]>(result);
                         this.tabIndex = 0;
                     }).catch(e => {
                         m.redraw();

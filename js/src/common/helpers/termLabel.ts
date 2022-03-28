@@ -1,8 +1,9 @@
+import {Attributes} from 'mithril';
+import app from 'flarum/common/app';
 import extract from 'flarum/common/utils/extract';
 import Term from '../models/Term';
 import taxonomyIcon from './taxonomyIcon';
 import Taxonomy from '../models/Taxonomy';
-import {Attributes} from 'mithril';
 
 export default function termLabel(term: Taxonomy | Term | null = null, attrs: Attributes = {}) {
     attrs.style = attrs.style || {};

@@ -1,3 +1,4 @@
+import app from 'flarum/forum/app';
 import addComposerControls from './addComposerControls';
 import addDiscussionControls from './addDiscussionControls';
 import addIndexFilters from './addIndexFilters';

@@ -1,6 +1,9 @@
+import app from 'flarum/forum/app';
+import {ApiPayloadPlural} from 'flarum/common/Store';
 import {extend} from 'flarum/common/extend';
 import icon from 'flarum/common/helpers/icon';
 import ItemList from 'flarum/common/utils/ItemList';
+import Taxonomy from '../common/models/Taxonomy';
 import Term from '../common/models/Term';
 import showsFilterFor from './utils/showsFilterFor';
 
@@ -20,7 +23,7 @@ export default function () {
     // Which might not be available yet when imports are resolved
     class TaxonomyTermType extends flarum.extensions['fof-user-directory'].searchTypes.AbstractType {
         allTerms: Term[] | null = null
-        loadingAllTermsPromise: Promise<void> | null = null
+        loadingAllTermsPromise: Promise<any> | null = null
         loading: boolean = false
         suggestions: Term[] = []
 
@@ -43,7 +46,7 @@ export default function () {
 
                 query = query.toLowerCase();
 
-                this.allTerms.forEach(term => {
+                this.allTerms!.forEach(term => {
                     if (term.name().toLowerCase().indexOf(query) !== -1) {
                         this.suggestions.push(term);
                     }
@@ -66,14 +69,14 @@ export default function () {
 
             const promises: Promise<void>[] = [];
 
-            app.store.all('flamarkt-taxonomies').filter(showsFilterFor('users')).forEach(taxonomy => {
-                promises.push(app.request({
+            app.store.all<Taxonomy>('flamarkt-taxonomies').filter(showsFilterFor('users')).forEach(taxonomy => {
+                promises.push(app.request<ApiPayloadPlural>({
                     method: 'GET',
                     url: app.forum.attribute('apiUrl') + taxonomy.apiEndpoint() + '/terms',
                 }).then(result => {
-                    const terms = app.store.pushPayload(result);
+                    const terms = app.store.pushPayload<Term[]>(result);
 
-                    terms.forEach((term: Term) => {
+                    terms.forEach(term => {
                         term.pushData({
                             relationships: {
                                 taxonomy,
@@ -81,19 +84,21 @@ export default function () {
                         });
                     });
 
-                    this.allTerms.push(...terms);
+                    this.allTerms!.push(...terms);
                 }));
             });
 
             this.loadingAllTermsPromise = Promise.all(promises);
 
-            return this.loadingAllTermsPromise.then(() => {
+            return this.loadingAllTermsPromise!.then(() => {
                 this.loadingAllTermsPromise = null;
             });
         }
 
         renderKind(term: Term) {
-            return term.taxonomy().name();
+            const taxonomy = term.taxonomy();
+
+            return taxonomy && taxonomy.name();
         }
 
         renderLabel(term: Term) {
@@ -116,12 +121,12 @@ export default function () {
             params.q += 'taxonomy:' + resource.taxonomy().slug() + ':' + resource.slug();
         }
 
-        initializeFromParams(params) {
+        initializeFromParams(params: any) {
             if (!params.q) {
                 return Promise.resolve([]);
             }
 
-            const gambits: string[] = params.q.split(' ').filter(word => word.indexOf('taxonomy:') === 0);
+            const gambits: string[] = (params.q as string).split(' ').filter(word => word.indexOf('taxonomy:') === 0);
 
             if (!gambits.length) {
                 return Promise.resolve([]);
@@ -137,7 +142,7 @@ export default function () {
                         return;
                     }
 
-                    const term = this.allTerms.find(t => t.slug() === parts[2] && t.taxonomy().slug() === parts[1]);
+                    const term = this.allTerms!.find(t => t.slug() === parts[2] && t.taxonomy().slug() === parts[1]);
 
                     if (term) {
                         terms.push(term);
@@ -149,7 +154,7 @@ export default function () {
         }
     }
 
-    extend(flarum.extensions['fof-user-directory'].components.SearchField.prototype, 'filterTypes', function (items: ItemList) {
+    extend(flarum.extensions['fof-user-directory'].components.SearchField.prototype, 'filterTypes', function (items: ItemList<any>) {
         items.add('flamarkt-taxonomies', new TaxonomyTermType(), 15);
     });
 }

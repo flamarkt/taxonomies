@@ -1,15 +1,15 @@
+import app from 'flarum/forum/app';
 import {extend} from 'flarum/common/extend';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
-import ItemList from 'flarum/common/utils/ItemList';
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 import TaxonomyDropdown from './components/TaxonomyDropdown';
 import Term from '../common/models/Term';
 import showsFilterFor from './utils/showsFilterFor';
 
 export default function () {
-    extend(IndexPage.prototype, 'viewItems', function (this: IndexPage, items: ItemList) {
+    extend(IndexPage.prototype, 'viewItems', function (items) {
         sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions')).forEach(taxonomy => {
             items.add('taxonomy-' + taxonomy.slug(), TaxonomyDropdown.component({
                 taxonomy,
@@ -34,13 +34,13 @@ export default function () {
         });
     });
 
-    extend(GlobalSearchState.prototype, 'stickyParams', function (params: any) {
+    extend(GlobalSearchState.prototype, 'stickyParams', function (params) {
         sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions')).forEach(taxonomy => {
             params[taxonomy.slug()] = m.route.param(taxonomy.slug());
         });
     });
 
-    extend(DiscussionListState.prototype, 'requestParams', function (this: DiscussionListState, params: any) {
+    extend(DiscussionListState.prototype, 'requestParams', function (params: any) {
         // Include the taxonomies when navigating to the discussion list
         // Same includes are pre-loaded in DiscussionAttributes.php
         params.include.push('taxonomyTerms', 'taxonomyTerms.taxonomy');

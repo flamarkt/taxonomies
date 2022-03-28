@@ -1,13 +1,15 @@
 import {Vnode} from 'mithril';
+import app from 'flamarkt/backoffice/backoffice/app';
 import Component, {ComponentAttrs} from 'flarum/common/Component';
+import {ApiPayloadPlural} from 'flarum/common/Store';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-import Sortable from 'flamarkt/core/common/components/Sortable';
+import Sortable from 'flamarkt/backoffice/common/components/Sortable';
 import sortTerms from '../../common/utils/sortTerms';
 import EditTermModal from './EditTermModal';
 import taxonomyIcon from '../../common/helpers/taxonomyIcon';
-import Term from "../../common/models/Term";
-import Taxonomy from "../../common/models/Taxonomy";
+import Term from '../../common/models/Term';
+import Taxonomy from '../../common/models/Taxonomy';
 
 interface TaxonomyTermsListAttrs extends ComponentAttrs {
     taxonomy: Taxonomy
@@ -19,11 +21,11 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
     oninit(vnode: Vnode<TaxonomyTermsListAttrs, this>) {
         super.oninit(vnode);
 
-        app.request({
+        app.request<ApiPayloadPlural>({
             method: 'GET',
             url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiTermsEndpoint(),
         }).then(result => {
-            this.terms = app.store.pushPayload(result);
+            this.terms = app.store.pushPayload<Term[]>(result);
             m.redraw();
         });
     }
@@ -43,7 +45,7 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
                 onsort: (origin: number, destination: number) => {
                     terms.splice(destination, 0, ...terms.splice(origin, 1));
 
-                    app.request({
+                    app.request<ApiPayloadPlural>({
                         method: 'POST',
                         url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiOrderEndpoint(),
                         body: {
@@ -95,14 +97,14 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
             Button.component({
                 className: 'Button',
                 onclick: () => {
-                    app.request({
+                    app.request<ApiPayloadPlural>({
                         method: 'POST',
                         url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiOrderEndpoint(),
                         body: {
                             order: [],
                         },
                     }).then(result => {
-                        this.terms = app.store.pushPayload(result);
+                        this.terms = app.store.pushPayload<Term[]>(result);
                         m.redraw();
                     }).catch(e => {
                         m.redraw();

@@ -1,3 +1,4 @@
+import app from 'flarum/admin/app';
 import makeEveryoneMeansDisabledUsers from './makeEveryoneMeansDisabledUsers';
 
 const translationPrefix = 'flamarkt-taxonomies.admin.permissions.';

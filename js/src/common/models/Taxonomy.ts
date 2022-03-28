@@ -1,24 +1,25 @@
 import Model from 'flarum/common/Model';
 
 export default class Taxonomy extends Model {
-    type = Model.attribute('type');
-    name = Model.attribute('name');
-    slug = Model.attribute('slug');
-    description = Model.attribute('description');
-    color = Model.attribute('color');
-    icon = Model.attribute('icon');
-    order = Model.attribute('order');
-    showLabel = Model.attribute('showLabel');
-    showFilter = Model.attribute('showFilter');
-    allowCustomValues = Model.attribute('allowCustomValues');
-    customValueValidation = Model.attribute('customValueValidation');
-    customValueSlugger = Model.attribute('customValueSlugger');
-    minTerms = Model.attribute('minTerms');
-    maxTerms = Model.attribute('maxTerms');
+    type = Model.attribute<string>('type');
+    name = Model.attribute<string>('name');
+    slug = Model.attribute<string>('slug');
+    description = Model.attribute<string>('description');
+    color = Model.attribute<string>('color');
+    icon = Model.attribute<string>('icon');
+    order = Model.attribute<number>('order');
+    showLabel = Model.attribute<boolean>('showLabel');
+    showFilter = Model.attribute<boolean>('showFilter');
+    allowCustomValues = Model.attribute<boolean>('allowCustomValues');
+    customValueValidation = Model.attribute<string | null>('customValueValidation');
+    customValueSlugger = Model.attribute<string | null>('customValueSlugger');
+    minTerms = Model.attribute<number>('minTerms');
+    maxTerms = Model.attribute<number>('maxTerms');
     createdAt = Model.attribute('createdAt', Model.transformDate);
-    canSearch = Model.attribute('canSearch');
+    canSearch = Model.attribute<boolean>('canSearch');
 
     protected apiEndpoint(): string {
+        // @ts-ignore data.id not type-hinted
         return '/flamarkt/taxonomies' + (this.exists ? '/' + this.data.id : '');
     }
 

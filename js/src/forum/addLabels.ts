@@ -1,11 +1,10 @@
 import {extend} from 'flarum/common/extend';
 import DiscussionListItem from 'flarum/forum/components/DiscussionListItem';
 import DiscussionHero from 'flarum/forum/components/DiscussionHero';
-import ItemList from 'flarum/common/utils/ItemList';
 import labelsFromMultipleTaxonomiesList from '../common/helpers/labelsFromMultipleTaxonomiesList';
 
 export default function () {
-    extend(DiscussionListItem.prototype, 'infoItems', function (this: DiscussionListItem, items: ItemList) {
+    extend(DiscussionListItem.prototype, 'infoItems', function (items) {
         const terms = this.attrs.discussion.taxonomyTerms();
 
         if (terms && terms.length) {
@@ -13,7 +12,7 @@ export default function () {
         }
     });
 
-    extend(DiscussionHero.prototype, 'items', function (this: DiscussionHero, items: ItemList) {
+    extend(DiscussionHero.prototype, 'items', function (items) {
         const terms = this.attrs.discussion.taxonomyTerms();
 
         if (terms && terms.length) {

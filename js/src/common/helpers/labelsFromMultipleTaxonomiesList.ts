@@ -1,7 +1,7 @@
+import {Attributes} from 'mithril';
 import sortTaxonomies from '../utils/sortTaxonomies';
 import termsLabel from './termsLabel';
 import Term from '../models/Term';
-import {Attributes} from 'mithril';
 import Taxonomy from '../models/Taxonomy';
 
 export default function (terms: Term[], attrs: Attributes = {}) {
@@ -10,7 +10,7 @@ export default function (terms: Term[], attrs: Attributes = {}) {
     terms.forEach(term => {
         const taxonomy = term.taxonomy();
 
-        if (taxonomies.indexOf(taxonomy) === -1) {
+        if (taxonomy && taxonomies.indexOf(taxonomy) === -1) {
             taxonomies.push(taxonomy);
         }
     });

@@ -1,14 +1,18 @@
+import app from 'flarum/forum/app';
 import {extend} from 'flarum/common/extend';
 import ProductIndexLayout from 'flamarkt/core/forum/layouts/ProductIndexLayout';
 import ProductIndexPage from 'flamarkt/core/forum/pages/ProductIndexPage';
-import ItemList from 'flarum/common/utils/ItemList';
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 import TaxonomyDropdown from './components/TaxonomyDropdown';
 import Term from '../common/models/Term';
 import showsFilterFor from './utils/showsFilterFor';
 
 export default function () {
-    extend(ProductIndexLayout.prototype, 'filters', function (this: ProductIndexLayout, items: ItemList) {
+    if (!ProductIndexLayout || !ProductIndexPage) {
+        return;
+    }
+
+    extend(ProductIndexLayout.prototype, 'filters', function (items) {
         sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('products')).forEach(taxonomy => {
             items.add('taxonomy-' + taxonomy.slug(), TaxonomyDropdown.component({
                 taxonomy,
