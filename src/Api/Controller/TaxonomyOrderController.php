@@ -26,7 +26,8 @@ class TaxonomyOrderController extends AbstractListController
 
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertAdmin();
 
         $attributes = $request->getParsedBody();
 
@@ -34,7 +35,7 @@ class TaxonomyOrderController extends AbstractListController
 
         $order = Arr::get($attributes, 'order') ?: [];
 
-        $this->repository->sorting($order);
+        $this->repository->sorting($actor, $order);
 
         // Return updated order values
         return $this->repository->all();

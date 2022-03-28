@@ -19,12 +19,13 @@ class TaxonomyDeleteController extends AbstractDeleteController
 
     protected function delete(ServerRequestInterface $request)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertAdmin();
 
         $id = Arr::get($request->getQueryParams(), 'id');
 
         $taxonomy = $this->repository->findIdOrFail($id);
 
-        $this->repository->delete($taxonomy);
+        $this->repository->delete($actor, $taxonomy);
     }
 }

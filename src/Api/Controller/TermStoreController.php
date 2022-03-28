@@ -26,7 +26,8 @@ class TermStoreController extends AbstractCreateController
 
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertAdmin();
 
         $id = Arr::get($request->getQueryParams(), 'id');
 
@@ -34,6 +35,6 @@ class TermStoreController extends AbstractCreateController
 
         $attributes = Arr::get($request->getParsedBody(), 'data.attributes', []);
 
-        return $this->terms->store($taxonomy, $attributes);
+        return $this->terms->store($actor, $taxonomy, $attributes);
     }
 }

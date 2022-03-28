@@ -23,10 +23,11 @@ class TaxonomyStoreController extends AbstractCreateController
 
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertAdmin();
 
         $attributes = Arr::get($request->getParsedBody(), 'data.attributes', []);
 
-        return $this->repository->store($attributes);
+        return $this->repository->store($actor, $attributes);
     }
 }

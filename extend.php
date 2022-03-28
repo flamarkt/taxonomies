@@ -64,11 +64,23 @@ return [
         ->prepareDataForSerialization(LoadForumTaxonomiesRelationship::class),
 
     (new Extend\Model(Discussion::class))
-        ->belongsToMany('taxonomyTerms', Term::class, 'flamarkt_discussion_taxonomy_term', 'discussion_id', 'term_id'),
+        ->relationship('taxonomyTerms', function (Discussion $discussion) {
+            return $discussion
+                ->belongsToMany(Term::class, 'flamarkt_discussion_taxonomy_term', 'discussion_id', 'term_id')
+                ->withTimestamps();
+        }),
     (new Extend\Model(User::class))
-        ->belongsToMany('taxonomyTerms', Term::class, 'flamarkt_taxonomy_term_user', 'user_id', 'term_id'),
+        ->relationship('taxonomyTerms', function (User $user) {
+            return $user
+                ->belongsToMany(Term::class, 'flamarkt_taxonomy_term_user', 'user_id', 'term_id')
+                ->withTimestamps();
+        }),
     (new Extend\Model(Product::class))
-        ->belongsToMany('taxonomyTerms', Term::class, 'flamarkt_product_taxonomy_term', 'product_id', 'term_id'),
+        ->relationship('taxonomyTerms', function (Product $product) {
+            return $product
+                ->belongsToMany(Term::class, 'flamarkt_product_taxonomy_term', 'product_id', 'term_id')
+                ->withTimestamps();
+        }),
 
     (new Extend\Middleware('forum'))
         ->add(StickyIndexParamsMiddleware::class),

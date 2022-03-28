@@ -29,7 +29,8 @@ class TermOrderController extends AbstractListController
 
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertAdmin();
 
         $id = Arr::get($request->getQueryParams(), 'id');
 
@@ -41,7 +42,7 @@ class TermOrderController extends AbstractListController
 
         $order = Arr::get($attributes, 'order') ?: [];
 
-        $this->terms->sorting($taxonomy, $order);
+        $this->terms->sorting($actor, $taxonomy, $order);
 
         // Return updated order values
         return $this->terms->all($taxonomy);

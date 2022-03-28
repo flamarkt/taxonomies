@@ -13,6 +13,9 @@
         "flarum/core": "^1.2",
         "flamarkt/backoffice": "^0.1.0"
     },
+    "replace": {
+        "fof/taxonomies": "*"
+    },
     "authors": [
         {
             "name": "Flamarkt",

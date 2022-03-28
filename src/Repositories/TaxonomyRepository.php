@@ -2,9 +2,13 @@
 
 namespace Flamarkt\Taxonomies\Repositories;
 
+use Flamarkt\Taxonomies\Events\Taxonomy\Created;
+use Flamarkt\Taxonomies\Events\Taxonomy\Deleted;
 use Flamarkt\Taxonomies\Taxonomy;
 use Flamarkt\Taxonomies\Validators\TaxonomyValidator;
 use Flarum\Foundation\ValidationException;
+use Flarum\User\User;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -14,11 +18,13 @@ class TaxonomyRepository
 {
     protected $taxonomy;
     protected $validator;
+    protected $events;
 
-    public function __construct(Taxonomy $taxonomy, TaxonomyValidator $validator)
+    public function __construct(Taxonomy $taxonomy, TaxonomyValidator $validator, Dispatcher $events)
     {
         $this->taxonomy = $taxonomy;
         $this->validator = $validator;
+        $this->events = $events;
     }
 
     protected function query(): Builder
@@ -68,7 +74,7 @@ class TaxonomyRepository
         return $this->query()->get();
     }
 
-    public function store(array $attributes): Taxonomy
+    public function store(User $actor, array $attributes): Taxonomy
     {
         $this->validator->type = Arr::get($attributes, 'type');
         $this->validator->assertValid($attributes);
@@ -76,10 +82,12 @@ class TaxonomyRepository
         $taxonomy = new Taxonomy($attributes);
         $taxonomy->save();
 
+        $this->events->dispatch(new Created($taxonomy, $actor, $attributes));
+
         return $taxonomy;
     }
 
-    public function update(Taxonomy $taxonomy, array $attributes): Taxonomy
+    public function update(User $actor, Taxonomy $taxonomy, array $attributes): Taxonomy
     {
         $this->validator->type = $taxonomy->type;
         $this->validator->ignore = $taxonomy;
@@ -99,12 +107,14 @@ class TaxonomyRepository
         return $taxonomy;
     }
 
-    public function delete(Taxonomy $taxonomy)
+    public function delete(User $actor, Taxonomy $taxonomy)
     {
         $taxonomy->delete();
+
+        $this->events->dispatch(new Deleted($taxonomy, $actor, []));
     }
 
-    public function sorting(array $order)
+    public function sorting(User $actor, array $order)
     {
         $this->taxonomy->newQuery()->update([
             'order' => null,

@@ -19,12 +19,13 @@ class TermDeleteController extends AbstractDeleteController
 
     protected function delete(ServerRequestInterface $request)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertAdmin();
 
         $id = Arr::get($request->getQueryParams(), 'id');
 
         $term = $this->repository->findOrFail($id);
 
-        $this->repository->delete($term);
+        $this->repository->delete($actor, $term);
     }
 }

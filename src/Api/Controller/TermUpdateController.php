@@ -23,7 +23,8 @@ class TermUpdateController extends AbstractShowController
 
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertAdmin();
 
         $id = Arr::get($request->getQueryParams(), 'id');
 
@@ -31,6 +32,6 @@ class TermUpdateController extends AbstractShowController
 
         $attributes = Arr::get($request->getParsedBody(), 'data.attributes', []);
 
-        return $this->repository->update($term, $attributes);
+        return $this->repository->update($actor, $term, $attributes);
     }
 }
