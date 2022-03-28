@@ -16,6 +16,13 @@ app.initializers.add('flamarkt-taxonomies', () => {
         component: TaxonomiesPage,
     };
 
+    app.extensionData.for('flamarkt-taxonomies').registerSetting(() => {
+        return m('.Form-group', LinkButton.component({
+            className: 'Button',
+            href: app.route('taxonomies'),
+        }, app.translator.trans('flamarkt-taxonomies.admin.settings.goToPage')));
+    });
+
     extend(BackofficeNav.prototype, 'items', function (items) {
         items.add('taxonomies', LinkButton.component({
             href: app.route('taxonomies'),

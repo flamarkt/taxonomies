@@ -89,6 +89,8 @@ flamarkt-taxonomies:
             editAnyUser: Edit taxonomies on any user
             ownDisabledEveryone: Non-activated and suspended members
             ownDisabledMembers: Activated members
+        settings:
+            goToPage: Go to configuration page
 
     forum:
         composer:
