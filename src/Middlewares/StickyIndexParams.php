@@ -1,14 +1,15 @@
 <?php
 
-namespace Flamarkt\Taxonomies;
+namespace Flamarkt\Taxonomies\Middlewares;
 
+use Flamarkt\Taxonomies\Taxonomy;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class StickyIndexParamsMiddleware implements MiddlewareInterface
+class StickyIndexParams implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -46,7 +47,8 @@ class StickyIndexParamsMiddleware implements MiddlewareInterface
                 ->get();
 
             foreach ($taxonomies as $taxonomy) {
-                //TODO: switch to filter when no q
+                // We have to use the q parameter every time, because there's no way to inject an arbitrary filter
+                // through a forum middleware without overriding the content class for index and tag
                 $q = "$q taxonomy:{$taxonomy->slug}:" . Arr::pull($queryParams, $taxonomy->slug);
             }
 

@@ -82,8 +82,11 @@ return [
                 ->withTimestamps();
         }),
 
+    (new Extend\Middleware('api'))
+        ->add(Middlewares\NestedArrayFilterToJSON::class),
+
     (new Extend\Middleware('forum'))
-        ->add(StickyIndexParamsMiddleware::class),
+        ->add(Middlewares\StickyIndexParams::class),
 
     (new Extenders\TaxonomizeModel(
         'discussions',
@@ -144,4 +147,7 @@ return [
         ->addFilter(Gambits\ProductTaxonomyGambit::class),
     (new Extend\SimpleFlarumSearch(ProductSearcher::class))
         ->addGambit(Gambits\ProductTaxonomyGambit::class),
+
+    (new Extend\ErrorHandling())
+        ->handler(Exceptions\InvalidFilterTaxonomy::class, Exceptions\InvalidFilterTaxonomyHandler::class),
 ];

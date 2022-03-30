@@ -113,6 +113,10 @@ flamarkt-taxonomies:
             custom: Use {value}
             submit: OK
 
+    api:
+        error:
+            invalid_filter_taxonomy: Invalid "{type}" taxonomy filter key "{slug}"
+
     ref:
         field:
             name: Name

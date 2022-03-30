@@ -49,10 +49,12 @@ export default function () {
             const filterTermSlug = this.params[taxonomy.slug()];
 
             if (filterTermSlug) {
-                params.filter.q = (params.filter.q || '') + ' taxonomy:' + taxonomy.slug() + ':' + filterTermSlug;
-
-                //TODO: switch between gambits and filters
-                //params.filter[taxonomy.slug()] = filterTermSlug;
+                if (params.filter.q) {
+                    params.filter.q = (params.filter.q || '') + ' taxonomy:' + taxonomy.slug() + ':' + filterTermSlug;
+                } else {
+                    params.filter.taxonomy = (params.filter.taxonomy || {});
+                    params.filter.taxonomy[taxonomy.slug()] = filterTermSlug;
+                }
             }
         });
     });
