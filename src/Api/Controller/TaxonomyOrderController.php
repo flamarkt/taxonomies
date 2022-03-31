@@ -27,7 +27,7 @@ class TaxonomyOrderController extends AbstractListController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = RequestUtil::getActor($request);
-        $actor->assertAdmin();
+        $actor->assertCan('taxonomies.moderate');
 
         $attributes = $request->getParsedBody();
 

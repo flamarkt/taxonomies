@@ -20,7 +20,7 @@ class TermDeleteController extends AbstractDeleteController
     protected function delete(ServerRequestInterface $request)
     {
         $actor = RequestUtil::getActor($request);
-        $actor->assertAdmin();
+        $actor->assertCan('taxonomies.moderate');
 
         $id = Arr::get($request->getQueryParams(), 'id');
 

@@ -79,6 +79,7 @@ flamarkt-taxonomies:
                 edit: => flamarkt-taxonomies.ref.submit.edit
         permissions:
             heading: Taxonomies
+            moderate: Configure available taxonomies
             seeOwnDiscussion: See taxonomies on own discussions
             seeAnyDiscussion: See taxonomies on all discussions
             editOwnDiscussion: Edit taxonomies on own discussions

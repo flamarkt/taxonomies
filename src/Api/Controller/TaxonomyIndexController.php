@@ -22,7 +22,8 @@ class TaxonomyIndexController extends AbstractListController
 
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        $actor = RequestUtil::getActor($request);
+        $actor->assertCan('taxonomies.moderate');
 
         return $this->repository->all();
     }

@@ -24,7 +24,7 @@ class TermUpdateController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = RequestUtil::getActor($request);
-        $actor->assertAdmin();
+        $actor->assertCan('taxonomies.moderate');
 
         $id = Arr::get($request->getQueryParams(), 'id');
 

@@ -24,7 +24,7 @@ class TaxonomyStoreController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         $actor = RequestUtil::getActor($request);
-        $actor->assertAdmin();
+        $actor->assertCan('taxonomies.moderate');
 
         $attributes = Arr::get($request->getParsedBody(), 'data.attributes', []);
 

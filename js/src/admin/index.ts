@@ -12,6 +12,11 @@ app.initializers.add('flamarkt-taxonomies-admin', () => {
 
     app.extensionData.for('flamarkt-taxonomies')
         .registerPermission({
+            icon: 'fas fa-tag',
+            label: app.translator.trans(translationPrefix + 'moderate'),
+            permission: 'taxonomies.moderate',
+        }, 'moderate')
+        .registerPermission({
             icon: 'fas fa-eye',
             label: app.translator.trans(translationPrefix + 'seeOwnDiscussion'),
             permission: 'discussion.seeOwnTaxonomy',
