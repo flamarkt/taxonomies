@@ -27,6 +27,10 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__ . '/js/dist/admin.js'),
 
+    // Intentionally registering admin code on both frontends, because it holds the configuration for the extension page
+    (new Extend\Frontend('backoffice'))
+        ->js(__DIR__ . '/js/dist/admin.js'),
+
     (new Extend\Frontend('backoffice'))
         ->js(__DIR__ . '/js/dist/backoffice.js')
         ->css(__DIR__ . '/resources/less/backoffice.less')

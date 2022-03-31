@@ -3,7 +3,8 @@ import makeEveryoneMeansDisabledUsers from './makeEveryoneMeansDisabledUsers';
 
 const translationPrefix = 'flamarkt-taxonomies.admin.permissions.';
 
-app.initializers.add('flamarkt-taxonomies', () => {
+// Unique initializer name because we will register this file in both frontends and there will already be a flamarkt-taxonomies initializer
+app.initializers.add('flamarkt-taxonomies-admin', () => {
     makeEveryoneMeansDisabledUsers([
         'user.seeOwnTaxonomy',
         'user.editOwnTaxonomy',
