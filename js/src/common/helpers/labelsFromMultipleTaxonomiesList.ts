@@ -16,6 +16,6 @@ export default function (terms: Term[], attrs: Attributes = {}) {
     });
 
     return sortTaxonomies(taxonomies).map(taxonomy => {
-        return termsLabel(terms.filter(term => term.taxonomy() === taxonomy), attrs);
+        return termsLabel(terms.filter(term => term.taxonomy() === taxonomy), {...attrs});
     });
 }
