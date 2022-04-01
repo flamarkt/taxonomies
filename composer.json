@@ -25,7 +25,8 @@
     ],
     "support": {
         "issues": "https://github.com/flamarkt/taxonomies/issues",
-        "source": "https://github.com/flamarkt/taxonomies"
+        "source": "https://github.com/flamarkt/taxonomies",
+        "forum": "https://discuss.flarum.org/d/30499"
     },
     "autoload": {
         "psr-4": {
