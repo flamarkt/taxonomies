@@ -16,7 +16,7 @@ return [
 
             $table->primary(['product_id', 'term_id']);
 
-            $table->foreign('product_id')->references('id')->on('flamarkt_products2')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('flamarkt_products')->onDelete('cascade');
             $table->foreign('term_id')->references('id')->on('flamarkt_taxonomy_terms')->onDelete('cascade');
         });
     },
