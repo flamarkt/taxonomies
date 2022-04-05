@@ -9,6 +9,10 @@ return [
             $schema->rename('fof_discussion_taxonomy_term', 'flamarkt_discussion_taxonomy_term');
             return;
         }
+        if ($schema->hasTable('gb_discussion_taxonomy_term')) {
+            $schema->rename('gb_discussion_taxonomy_term', 'flamarkt_discussion_taxonomy_term');
+            return;
+        }
 
         $schema->create('flamarkt_discussion_taxonomy_term', function (Blueprint $table) {
             $table->unsignedInteger('discussion_id');

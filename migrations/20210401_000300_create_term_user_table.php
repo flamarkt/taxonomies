@@ -9,6 +9,10 @@ return [
             $schema->rename('fof_taxonomy_term_user', 'flamarkt_taxonomy_term_user');
             return;
         }
+        if ($schema->hasTable('gb_taxonomy_term_user')) {
+            $schema->rename('gb_taxonomy_term_user', 'flamarkt_taxonomy_term_user');
+            return;
+        }
 
         $schema->create('flamarkt_taxonomy_term_user', function (Blueprint $table) {
             $table->unsignedInteger('term_id');
