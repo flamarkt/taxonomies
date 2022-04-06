@@ -10,7 +10,7 @@ import sortTaxonomies from '../../common/utils/sortTaxonomies';
 import TaxonomyTermsList from './TaxonomyTermsList';
 import EditTaxonomyModal from './EditTaxonomyModal';
 import taxonomyIcon from '../../common/helpers/taxonomyIcon';
-import Taxonomy from "../../common/models/Taxonomy";
+import Taxonomy from '../../common/models/Taxonomy';
 
 export default class TaxonomiesPage extends Page {
     tabIndex: number = 0;
