@@ -9,6 +9,10 @@ return [
             $schema->rename('fof_taxonomy_terms', 'flamarkt_taxonomy_terms');
             return;
         }
+        if ($schema->hasTable('gb_taxonomy_terms')) {
+            $schema->rename('gb_taxonomy_terms', 'flamarkt_taxonomy_terms');
+            return;
+        }
 
         $schema->create('flamarkt_taxonomy_terms', function (Blueprint $table) {
             $table->increments('id');
