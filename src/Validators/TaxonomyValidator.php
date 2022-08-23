@@ -3,6 +3,7 @@
 namespace Flamarkt\Taxonomies\Validators;
 
 use Flarum\Foundation\AbstractValidator;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class TaxonomyValidator extends AbstractValidator
@@ -34,6 +35,21 @@ class TaxonomyValidator extends AbstractValidator
             'custom_value_slugger' => 'nullable|in:random,alpha_dash,transliterator',
             'min_terms' => 'nullable|integer|min:0|max:255',
             'max_terms' => 'nullable|integer|min:0|max:255',
+            'tag_ids' => 'nullable|array',
         ];
+    }
+
+    protected function makeValidator(array $attributes)
+    {
+        $validator = parent::makeValidator($attributes);
+
+        // Flarum wouldn't add this rule in its original implementation
+        if (Arr::exists($attributes, 'tag_ids')) {
+            $validator->addRules([
+                'tag_ids.*' => 'required|string',
+            ]);
+        }
+
+        return $validator;
     }
 }

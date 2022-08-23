@@ -32,6 +32,10 @@ class TaxonomySerializer extends AbstractSerializer
             'canSearch' => $this->actor->can('search', $taxonomy),
         ];
 
+        if ($taxonomy->type === 'discussions') {
+            $attributes['tagIds'] = $taxonomy->tag_ids;
+        }
+
         if ($this->actor->isAdmin()) {
             $attributes += [
                 'customValueSlugger' => $taxonomy->custom_value_slugger,

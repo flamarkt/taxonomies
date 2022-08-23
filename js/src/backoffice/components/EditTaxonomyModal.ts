@@ -7,6 +7,9 @@ import {slug} from 'flarum/common/utils/string';
 import withAttr from 'flarum/common/utils/withAttr';
 import extractText from 'flarum/common/utils/extractText';
 import ItemList from 'flarum/common/utils/ItemList';
+import TagRelationshipSelect from './TagRelationshipSelect';
+import Tag from 'flarum/tags/common/models/Tag';
+import isExtensionEnabled from 'flarum/admin/utils/isExtensionEnabled';
 
 export interface EditTaxonomyModalAttrs extends AbstractEditModalAttrs {
     taxonomy: Taxonomy
@@ -28,6 +31,10 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
     customValueSlugger!: string
     minTerms!: number | string // Needs string because we leave the field empty for null
     maxTerms!: number | string
+    tagIds!: string[]
+
+    loadingTags: boolean = false
+    tagsLoaded: boolean = false
 
     oninit(vnode: Vnode<EditTaxonomyModalAttrs, this>) {
         super.oninit(vnode);
@@ -47,6 +54,25 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
         this.customValueSlugger = (taxonomy ? taxonomy.customValueSlugger() : null) || 'random';
         this.minTerms = taxonomy ? taxonomy.minTerms() : '';
         this.maxTerms = taxonomy ? taxonomy.maxTerms() : '';
+        this.tagIds = taxonomy ? taxonomy.tagIds() : [];
+
+        this.loadAllTagsIfNeeded();
+    }
+
+    loadAllTagsIfNeeded() {
+        if (this.type !== 'discussions' || !isExtensionEnabled('flarum-tags') || this.tagsLoaded || this.loadingTags) {
+            return;
+        }
+
+        this.loadingTags = true;
+
+        // Load the full list of tags so they can be used by TagRelationshipSelect
+        app.store.find('tags', {include: 'parent'}).then(() => {
+            this.loadingTags = false;
+            this.tagsLoaded = true;
+
+            m.redraw();
+        });
     }
 
     translationPrefix() {
@@ -82,6 +108,8 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
                 onchange: (value: string) => {
                     this.type = value;
                     this.dirty = true;
+
+                    this.loadAllTagsIfNeeded();
                 },
                 disabled: !this.isNew(),
             }),
@@ -93,8 +121,13 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
                 type: 'text',
                 value: this.name,
                 oninput: withAttr('value', (value: string) => {
+                    // If this is a new taxonomy and the slug has not been manually changed yet,
+                    // dynamically set the slug to a sensible value as a name is being typed
+                    if (!this.attrs.taxonomy && this.slug === slug(this.name /* old name */)) {
+                        this.slug = slug(value);
+                    }
+
                     this.name = value;
-                    this.slug = slug(value);
                     this.dirty = true;
                 }),
             }),
@@ -286,6 +319,21 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
             ]),
         ]));
 
+        if (this.type === 'discussions' && isExtensionEnabled('flarum-tags')) {
+            items.add('tags', m('.Form-group', [
+                m('label', app.translator.trans(this.translationPrefix() + 'field.tagScope')),
+                m('.helpText', app.translator.trans(this.translationPrefix() + 'field.tagScopeDescription')),
+                TagRelationshipSelect.component({
+                    relationship: app.store.all('tags').filter(tag => this.tagIds.indexOf(tag.id() || '') !== -1),
+                    onchange: (tags: Tag[]) => {
+                        this.tagIds = tags.map(tag => tag.id() || '');
+                        this.dirty = true;
+                    },
+                    placeholder: app.translator.trans(this.translationPrefix() + 'field.tagScopePlaceholder'),
+                }),
+            ]));
+        }
+
         return items;
     }
 
@@ -333,6 +381,7 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
             custom_value_slugger: this.customValueSlugger,
             min_terms: this.minTerms,
             max_terms: this.maxTerms,
+            tag_ids: this.tagIds,
         }, {
             errorHandler: this.onerror.bind(this),
         }).then(record => {

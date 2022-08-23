@@ -16,6 +16,25 @@ export default function () {
                 return;
             }
 
+            if (taxonomy.tagIds().length) {
+                if (!('flarum-tags' in flarum.extensions)) {
+                    return;
+                }
+
+                const tags = discussion.tags();
+
+                // This probably would not happen regularly, but we make sure to not crash the app in case it does
+                if (!Array.isArray(tags)) {
+                    return;
+                }
+
+                if (!tags.some(tag => {
+                    return taxonomy.tagIds().indexOf(tag.id()) !== -1;
+                })) {
+                    return;
+                }
+            }
+
             items.add('taxonomy-' + taxonomy.slug(), Button.component({
                 icon: 'fas fa-tag',
                 onclick: () => app.modal.show(ChooseTaxonomyTermsModal, {

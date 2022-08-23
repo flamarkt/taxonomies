@@ -38,6 +38,11 @@ flamarkt-taxonomies:
                 countRequiredDescription: >
                     Enter the minimum and maximum number of terms from that taxonomies that may be applied to a discussion.
                 rangeSeparatorText: to
+                tagScope: Only in specified tags
+                tagScopeDescription: >
+                    The taxonomy will only be available in the selected tags.
+                    If you select a single tag, the homepage filter will only be visible on that specific tag.
+                tagScopePlaceholder: Type to search a tag...
             delete: => flamarkt-taxonomies.ref.delete
             deleteConfirmation: >
                 Do you really want to delete the taxonomy {name}?
@@ -117,6 +122,7 @@ flamarkt-taxonomies:
     api:
         error:
             invalid_filter_taxonomy: Invalid "{type}" taxonomy filter key "{slug}"
+            discussion_taxonomy_not_in_scope: Taxonomy "{slug}" is not available in the current tag combination
 
     ref:
         field:

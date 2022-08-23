@@ -7,6 +7,25 @@ import termsLabel from '../common/helpers/termsLabel';
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 import termToIdentifier from '../common/utils/termToIdentifier';
 import Term from '../common/models/Term';
+import Taxonomy from '../common/models/Taxonomy';
+
+function applies(taxonomy: Taxonomy, instance: DiscussionComposer): boolean {
+    if (taxonomy.tagIds().length === 0) {
+        return true;
+    }
+
+    const selectedTags = instance.composer.fields.tags;
+
+    // While no tags have been selected in the composer, don't show any scoped taxonomy
+    if (!Array.isArray(selectedTags)) {
+        return false;
+    }
+
+    // Show scoped taxonomies if one of their tag has been selected in the composer
+    return selectedTags.some(tag => {
+        return taxonomy.tagIds().indexOf(tag.id()) !== -1;
+    });
+}
 
 export default function () {
     extend(DiscussionComposer.prototype, 'oninit', function () {
@@ -18,6 +37,10 @@ export default function () {
             const taxonomyId = taxonomy.id();
 
             if (taxonomy.type() !== 'discussions' || !taxonomyId) {
+                return;
+            }
+
+            if (!applies(taxonomy, this)) {
                 return;
             }
 
@@ -55,6 +78,10 @@ export default function () {
             const taxonomyId = taxonomy.id();
 
             if (taxonomy.type() !== 'discussions' || !taxonomyId) {
+                return;
+            }
+
+            if (!applies(taxonomy, this)) {
                 return;
             }
 
@@ -116,6 +143,10 @@ export default function () {
             const taxonomyId = taxonomy.id();
 
             if (taxonomy.type() !== 'discussions' || !taxonomyId) {
+                return;
+            }
+
+            if (!applies(taxonomy, this)) {
                 return;
             }
 

@@ -27,11 +27,15 @@ The backoffice for terms management is currently not paginated.
 This can lead to backoffice performance issues with large numbers of terms, which is more likely to happen when custom values are allowed.
 
 Changing the forum homepage can lead to issues.
-Setting the homepage to user list of product list will likely lead to problems.
+Setting the homepage to user list or product list will likely lead to problems.
 Setting the homepage to custom pages that aren't a searchable list of resources should be fine.
 
 The list of available taxonomies and terms will be leaked by the REST API to any user allowed to use any of them.
 This includes the user taxonomies even if the user is only allowed to edit discussion taxonomies and vice-versa.
+
+Tag scoped discussion taxonomies and terms will also be visible via the REST API to every user, even if they cannot see the tag they are scoped to.
+Changing the tags of an existing discussion with scoped taxonomies is not supported.
+If you change the tags of a discussion, you might be unable to edit its taxonomies again.
 
 Flamarkt Product support is still a work in progress.
 

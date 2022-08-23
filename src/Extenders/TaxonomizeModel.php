@@ -13,10 +13,12 @@ use Flamarkt\Taxonomies\Repositories\TaxonomyRepository;
 use Flamarkt\Taxonomies\Api\Serializer\TermSerializer;
 use Flamarkt\Taxonomies\Taxonomy;
 use Flamarkt\Taxonomies\Term;
+use Flarum\Locale\Translator;
 use Flarum\User\User;
 use FoF\Transliterator\Transliterator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -125,6 +127,27 @@ class TaxonomizeModel implements ExtenderInterface
             $actor->assertCan('editTaxonomy', $model);
         }
 
+        $discussionTagIds = collect();
+
+        if ($this->type === 'discussions') {
+            // This data is untrusted, but we know flarum-tags will throw permissions error before anything is persisted if those are invalid
+            $tagsData = Arr::get($data, 'relationships.tags.data');
+
+            if (is_array($tagsData)) {
+                foreach ($tagsData as $tagData) {
+                    $discussionTagIds->push(Arr::get($tagData, 'id'));
+                }
+            } else {
+                $tagsCollection = $model->tags;
+
+                // Checking if the result is a collection lets us skip the extension enabled check for now
+                // It's done later on when a scope actually needs validation
+                if ($tagsCollection instanceof Collection) {
+                    $discussionTagIds = $tagsCollection->pluck('id');
+                }
+            }
+        }
+
         foreach ($taxonomiesData as $taxonomyData) {
             $taxonomy = $repository->findIdOrFail(Arr::get($taxonomyData, 'id'), $this->type);
 
@@ -139,6 +162,20 @@ class TaxonomizeModel implements ExtenderInterface
                 } else {
                     $customTerms[] = Arr::get($termData, 'attributes.name');
                 }
+            }
+
+            // If we are updating a discussion and are setting new terms, check scopes
+            // We will skip this if the request is for removing all terms
+            if (
+                $taxonomy->type === 'discussions' &&
+                (count($termIds) > 0 || count($customTerms) > 0) &&
+                !$taxonomy->appliesToDiscussion($discussionTagIds)
+            ) {
+                throw new ValidationException([], [
+                    'taxonomyTerms' => resolve(Translator::class)->trans('flamarkt-taxonomies.api.error.discussion_taxonomy_not_in_scope', [
+                        'slug' => $taxonomy->slug,
+                    ]),
+                ]);
             }
 
             $terms = $taxonomy->terms()->whereIn('id', $termIds)->get();
@@ -267,6 +304,9 @@ class TaxonomizeModel implements ExtenderInterface
             call_user_func($this->validateNonExistingCallback, $model, $actor) &&
             $actor->can('editTaxonomy', $model)
         ) {
+            /**
+             * @var Taxonomy[] $omittedTaxonomiesWithRequiredMinimums
+             */
             $omittedTaxonomiesWithRequiredMinimums = Taxonomy::query()
                 ->where('type', $this->type)
                 ->whereNotIn('id', $alreadyValidatedMinimums)
@@ -274,6 +314,10 @@ class TaxonomizeModel implements ExtenderInterface
                 ->get();
 
             foreach ($omittedTaxonomiesWithRequiredMinimums as $taxonomy) {
+                if ($this->type === 'discussions' && !$taxonomy->appliesToDiscussion($discussionTagIds)) {
+                    continue;
+                }
+
                 $key = 'term_count_' . $taxonomy->slug;
 
                 $validator = $validatorFactory->make(

@@ -11,6 +11,28 @@ import showsFilterFor from './utils/showsFilterFor';
 export default function () {
     extend(IndexPage.prototype, 'viewItems', function (items) {
         sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions')).forEach(taxonomy => {
+            // If the taxonomy is not scoped, or if it's scoped to more than 1 tag, show the filter all the time
+            // Only filters for one specific tag will be hidden by default
+            if (taxonomy.tagIds().length === 1 && ('flarum-tags' in flarum.extensions)) {
+                const tag = this.currentTag();
+
+                if (!tag) {
+                    return;
+                }
+
+                if (taxonomy.tagIds().indexOf(tag.id()) === -1) {
+                    const parent = tag.parent();
+
+                    if (!parent) {
+                        return;
+                    }
+
+                    if (taxonomy.tagIds().indexOf(parent.id()) === -1) {
+                        return;
+                    }
+                }
+            }
+
             items.add('taxonomy-' + taxonomy.slug(), TaxonomyDropdown.component({
                 taxonomy,
                 activeTermSlug: app.search.params()[taxonomy.slug()],

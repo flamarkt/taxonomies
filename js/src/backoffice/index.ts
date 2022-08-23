@@ -9,6 +9,7 @@ import TaxonomiesPage from './components/TaxonomiesPage';
 import addModels from '../common/addModels';
 import sortTaxonomies from '../common/utils/sortTaxonomies';
 import ChooseTaxonomyTermsDropdown from '../common/components/ChooseTaxonomyTermsDropdown';
+import SimplifiedTag from './models/SimplifiedTag';
 
 export {
     common,
@@ -17,6 +18,11 @@ export {
 
 app.initializers.add('flamarkt-taxonomies', () => {
     addModels();
+
+    // The Tags extension doesn't boot in the backoffice frontend, but we need the model+store so we register it ourselves
+    if (!app.store.models.tags) {
+        app.store.models.tags = SimplifiedTag;
+    }
 
     app.routes.taxonomies = {
         path: '/taxonomies',
