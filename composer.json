@@ -49,7 +49,8 @@
                 "flamarkt/core",
                 "flarum/tags",
                 "fof/transliterator",
-                "fof/user-directory"
+                "fof/user-directory",
+                "v17development/flarum-blog"
             ]
         },
         "flamarkt-backoffice": {

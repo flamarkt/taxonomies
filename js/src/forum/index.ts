@@ -1,6 +1,7 @@
 import app from 'flarum/forum/app';
 import {common} from '../common/compat';
 import {forum} from './compat';
+import addBlogContent from './addBlogContent';
 import addComposerControls from './addComposerControls';
 import addDiscussionControls from './addDiscussionControls';
 import addIndexFilters from './addIndexFilters';
@@ -17,6 +18,7 @@ export {
 };
 
 app.initializers.add('flamarkt-taxonomies', () => {
+    addBlogContent();
     addComposerControls();
     addDiscussionControls();
     addIndexFilters();

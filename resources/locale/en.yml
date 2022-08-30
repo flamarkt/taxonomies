@@ -110,6 +110,10 @@ flamarkt-taxonomies:
             nav: Taxonomies
             edit: Edit {taxonomy}
 
+        blog:
+            widget:
+                title: Taxonomies
+
     lib:
         modal:
             title:
