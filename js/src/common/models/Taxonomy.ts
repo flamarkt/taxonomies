@@ -17,6 +17,7 @@ export default class Taxonomy extends Model {
     maxTerms = Model.attribute<number>('maxTerms');
     createdAt = Model.attribute('createdAt', Model.transformDate);
     canSearch = Model.attribute<boolean>('canSearch');
+    canBypassTermCounts = Model.attribute<boolean>('canBypassTermCounts');
     tagIds = Model.attribute<string[]>('tagIds');
 
     protected apiEndpoint(): string {

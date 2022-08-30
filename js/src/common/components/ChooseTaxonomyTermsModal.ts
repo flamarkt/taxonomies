@@ -6,6 +6,7 @@ import Model from 'flarum/common/Model';
 import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import Switch from 'flarum/common/components/Switch';
 import highlight from 'flarum/common/helpers/highlight';
 import classList from 'flarum/common/utils/classList';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -59,6 +60,7 @@ export default class ChooseTaxonomyTermsModal extends Modal<ChooseTaxonomyTermsM
     activeListIndex: number = 0;
     inputIsFocused: boolean = false;
     saving: boolean = false;
+    bypassReqs: boolean = false;
     navigator!: KeyboardNavigatable;
 
     oninit(vnode: Vnode<ChooseTaxonomyTermsModalAttrs, this>) {
@@ -142,6 +144,10 @@ export default class ChooseTaxonomyTermsModal extends Modal<ChooseTaxonomyTermsM
     }
 
     getInstruction() {
+        if (this.bypassReqs) {
+            return '';
+        }
+
         const count = this.selectedTerms.length;
 
         if (this.attrs.taxonomy.minTerms() && count < this.attrs.taxonomy.minTerms()) {
@@ -191,7 +197,7 @@ export default class ChooseTaxonomyTermsModal extends Modal<ChooseTaxonomyTermsM
             }
         }
 
-        if (this.attrs.taxonomy.maxTerms() && this.selectedTerms.length >= this.attrs.taxonomy.maxTerms()) {
+        if (!this.bypassReqs && this.attrs.taxonomy.maxTerms() && this.selectedTerms.length >= this.attrs.taxonomy.maxTerms()) {
             availableTerms = [];
         }
 
@@ -199,10 +205,26 @@ export default class ChooseTaxonomyTermsModal extends Modal<ChooseTaxonomyTermsM
     }
 
     content() {
-        return [
-            this.viewForm(),
-            this.listAvailableTerms(this.filteredAvailableTerms()),
-        ];
+        return this.contentItems().toArray();
+    }
+
+    contentItems() {
+        const items = new ItemList();
+
+        items.add('form', this.viewForm(), 20);
+
+        items.add('terms', this.listAvailableTerms(this.filteredAvailableTerms()), 10);
+
+        if (this.attrs.taxonomy.canBypassTermCounts() && (this.attrs.taxonomy.minTerms() || this.attrs.taxonomy.maxTerms())) {
+            items.add('bypass', m('.Modal-body.ChooseTaxonomyTermsModal-form-bypass', Switch.component({
+                state: this.bypassReqs,
+                onchange: (checked: boolean) => {
+                    this.bypassReqs = checked;
+                },
+            }, app.translator.trans('flamarkt-taxonomies.lib.modal.bypassTermCounts'))), -10);
+        }
+
+        return items;
     }
 
     viewForm() {
@@ -224,7 +246,7 @@ export default class ChooseTaxonomyTermsModal extends Modal<ChooseTaxonomyTermsM
         items.add('submit', m('.ChooseTaxonomyTermsModal-form-submit.App-primaryControl', Button.component({
             type: 'submit',
             className: 'Button Button--primary',
-            disabled: this.attrs.taxonomy.minTerms() && this.selectedTerms.length < this.attrs.taxonomy.minTerms(),
+            disabled: !this.bypassReqs && this.attrs.taxonomy.minTerms() && this.selectedTerms.length < this.attrs.taxonomy.minTerms(),
             icon: 'fas fa-check',
             loading: this.saving,
         }, app.translator.trans('flamarkt-taxonomies.lib.modal.submit'))), 10);

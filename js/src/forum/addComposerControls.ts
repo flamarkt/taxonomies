@@ -10,6 +10,10 @@ import Term from '../common/models/Term';
 import Taxonomy from '../common/models/Taxonomy';
 
 function applies(taxonomy: Taxonomy, instance: DiscussionComposer): boolean {
+    if (!app.forum.attribute('canUseTaxonomiesOnNewDiscussion')) {
+        return false;
+    }
+
     if (taxonomy.tagIds().length === 0) {
         return true;
     }

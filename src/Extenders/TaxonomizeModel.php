@@ -123,8 +123,10 @@ class TaxonomizeModel implements ExtenderInterface
 
         $taxonomiesData = Arr::get($data, 'relationships.taxonomies.data', []);
 
-        if (count($taxonomiesData)) {
-            $actor->assertCan('editTaxonomy', $model);
+        if (count($taxonomiesData) && $actor->cannot('editTaxonomy', $model)) {
+            throw new ValidationException([], [
+                'taxonomyTerms' => resolve(Translator::class)->trans('flamarkt-taxonomies.api.error.cannot_use_taxonomies_on_model'),
+            ]);
         }
 
         $discussionTagIds = collect();
@@ -183,12 +185,14 @@ class TaxonomizeModel implements ExtenderInterface
             $key = 'term_count_' . $taxonomy->slug;
             $rules = ['numeric'];
 
-            if ($taxonomy->min_terms) {
-                $rules[] = 'min:' . $taxonomy->min_terms;
-            }
+            if ($actor->cannot('bypassTermCounts', $taxonomy)) {
+                if ($taxonomy->min_terms) {
+                    $rules[] = 'min:' . $taxonomy->min_terms;
+                }
 
-            if ($taxonomy->max_terms) {
-                $rules[] = 'max:' . $taxonomy->max_terms;
+                if ($taxonomy->max_terms) {
+                    $rules[] = 'max:' . $taxonomy->max_terms;
+                }
             }
 
             $validator = $validatorFactory->make(
@@ -315,6 +319,10 @@ class TaxonomizeModel implements ExtenderInterface
 
             foreach ($omittedTaxonomiesWithRequiredMinimums as $taxonomy) {
                 if ($this->type === 'discussions' && !$taxonomy->appliesToDiscussion($discussionTagIds)) {
+                    continue;
+                }
+
+                if ($actor->can('bypassTermCounts', $taxonomy)) {
                     continue;
                 }
 

@@ -85,6 +85,7 @@ flamarkt-taxonomies:
         permissions:
             heading: Taxonomies
             moderate: Configure available taxonomies
+            bypassTermCounts: Bypass term count requirements
             seeOwnDiscussion: See taxonomies on own discussions
             seeAnyDiscussion: See taxonomies on all discussions
             editOwnDiscussion: Edit taxonomies on own discussions
@@ -117,12 +118,14 @@ flamarkt-taxonomies:
             placeholder: "{count, plural, one {Choose a term...} other {Choose # terms...}}"
             placeholderOptional: Choose...
             custom: Use {value}
+            bypassTermCounts: Bypass term counts
             submit: OK
 
     api:
         error:
             invalid_filter_taxonomy: Invalid "{type}" taxonomy filter key "{slug}"
             discussion_taxonomy_not_in_scope: Taxonomy "{slug}" is not available in the current tag combination
+            cannot_use_taxonomies_on_model: You are not allowed to use taxonomies in this context
 
     ref:
         field:

@@ -27,4 +27,9 @@ class TaxonomyPolicy extends AbstractPolicy
     {
         return $this->canSeeAllTaxonomies($actor);
     }
+
+    public function bypassTermCounts(User $actor, Taxonomy $taxonomy): bool
+    {
+        return $actor->hasPermission('taxonomies.bypassTermCounts');
+    }
 }

@@ -30,6 +30,7 @@ class TaxonomySerializer extends AbstractSerializer
             'minTerms' => $taxonomy->min_terms,
             'maxTerms' => $taxonomy->max_terms,
             'canSearch' => $this->actor->can('search', $taxonomy),
+            'canBypassTermCounts' => $this->actor->can('bypassTermCounts', $taxonomy),
         ];
 
         if ($taxonomy->type === 'discussions') {

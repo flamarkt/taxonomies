@@ -61,6 +61,9 @@ return [
         ->modelPolicy(User::class, Access\UserPolicy::class),
 
     (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attribute('canUseTaxonomiesOnNewDiscussion', function (ForumSerializer $serializer) {
+            return $serializer->getActor()->hasPermission('discussion.editOwnTaxonomy');
+        })
         ->hasMany('taxonomies', Api\Serializer\TaxonomySerializer::class),
 
     (new Extend\ApiController(Controller\ShowForumController::class))
