@@ -13,5 +13,6 @@ declare module 'flarum/forum/components/DiscussionComposer' {
         selectedTaxonomyTerms: {
             [taxonomyUniqueKey: string]: Term[]
         }
+        taxonomiesHeaderItemsCount?: number
     }
 }

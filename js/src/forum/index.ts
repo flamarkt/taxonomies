@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import {common} from '../common/compat';
 import {forum} from './compat';
 import addBlogContent from './addBlogContent';
-import addComposerControls from './addComposerControls';
+import addComposerControls, {delayedComposerHooks} from './addComposerControls';
 import addDiscussionControls from './addDiscussionControls';
 import addIndexFilters from './addIndexFilters';
 import addLabels from './addLabels';
@@ -29,3 +29,5 @@ app.initializers.add('flamarkt-taxonomies', () => {
     addModels();
     addUserDirectorySearchType();
 });
+
+app.initializers.add('flamarkt-taxonomies-delayed', delayedComposerHooks, -500);

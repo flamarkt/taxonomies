@@ -18,3 +18,14 @@
 .BlogTaxonomiesContainer {
     padding: 0 20px 20px;
 }
+
+@media @phone {
+    .ComposerBody--taxonomies-compact {
+        // Don't affect .item-title (composer title) which is moved to the header on mobile and influences where other items start below
+        .ComposerBody-header > li:not(.item-title) {
+            // Reduce the vertical size of tag, taxonomies and title inputs on mobile to accommodate more of them
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+    }
+}

@@ -171,4 +171,30 @@ export default function () {
         data.relationships = data.relationships || {};
         data.relationships.taxonomies = taxonomyData;
     });
+
+    extend(DiscussionComposer.prototype, 'view', function (vdom: any) {
+        // If there are too many element (no matter if taxonomies or other), apply the compact class
+        if ((this.taxonomiesHeaderItemsCount || 0) < 5) {
+            return;
+        }
+
+        (vdom.children || []).forEach((vdom: any) => {
+            if (!vdom || !vdom.attrs || !vdom.attrs.className) {
+                return;
+            }
+
+            if (vdom.attrs.className.indexOf('ComposerBody ') === -1) {
+                return;
+            }
+
+            vdom.attrs.className += ' ComposerBody--taxonomies-compact';
+        });
+    });
+}
+
+// Try to do this after all other extensions
+export function delayedComposerHooks() {
+    extend(DiscussionComposer.prototype, 'headerItems', function (items) {
+        this.taxonomiesHeaderItemsCount = Object.keys(items.toObject()).length;
+    });
 }
