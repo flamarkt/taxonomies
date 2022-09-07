@@ -324,7 +324,12 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
                 m('label', app.translator.trans(this.translationPrefix() + 'field.tagScope')),
                 m('.helpText', app.translator.trans(this.translationPrefix() + 'field.tagScopeDescription')),
                 TagRelationshipSelect.component({
-                    relationship: app.store.all('tags').filter(tag => this.tagIds.indexOf(tag.id() || '') !== -1),
+                    relationship: this.tagIds.map(tagId => {
+                        return app.store.getById('tags', tagId) || app.store.createRecord('tags', {
+                            id: tagId,
+                            attributes: {},
+                        });
+                    }),
                     onchange: (tags: Tag[]) => {
                         this.tagIds = tags.map(tag => tag.id() || '');
                         this.dirty = true;

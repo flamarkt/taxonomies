@@ -31,6 +31,14 @@ export default class TagRelationshipSelect extends AbstractRelationshipSelect<Si
     }
 
     item(tag: SimplifiedTag, query?: string) {
-        return highlight(tag.name(), query);
+        const name = tag.name();
+
+        if (!name) {
+            // Render deleted tags that are still referenced in the setting by ID
+            // Intentionally not translated since this is really an edge case
+            return '[Deleted] #' + tag.id();
+        }
+
+        return highlight(name, query);
     }
 }
