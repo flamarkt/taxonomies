@@ -11,27 +11,32 @@ class DiscussionPolicy extends AbstractPolicy
     public function seeTaxonomy(User $actor, Discussion $discussion)
     {
         if ($discussion->user_id === $actor->id && $actor->can('seeOwnTaxonomy', $discussion)) {
-            return $this->allow();
+            // We need to use forceAllow because the ->deny() returned by flarum-tags scope logic would otherwise take priority
+            return $this->forceAllow();
         }
 
-        return $actor->can('seeAnyTaxonomy', $discussion);
+        if ($actor->can('seeAnyTaxonomy', $discussion)) {
+            return $this->forceAllow();
+        }
     }
 
     public function editTaxonomy(User $actor, Discussion $discussion)
     {
         // For new discussions, we just check editOwnTaxonomy
         if (!$discussion->exists && $actor->hasPermission('discussion.editOwnTaxonomy')) {
-            return $this->allow();
+            return $this->forceAllow();
         }
 
         // For existing discussions, we check ownership and ability to reply
         if ($discussion->user_id === $actor->id &&
             $actor->can('reply', $discussion) &&
             $actor->can('editOwnTaxonomy', $discussion)) {
-            return $this->allow();
+            return $this->forceAllow();
         }
 
         // Check the moderation permission
-        return $actor->can('editAnyTaxonomy', $discussion);
+        if ($actor->can('editAnyTaxonomy', $discussion)) {
+            return $this->forceAllow();
+        }
     }
 }
