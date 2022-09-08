@@ -20,7 +20,8 @@
 }
 
 @media @phone {
-    .ComposerBody--taxonomies-compact {
+    // Include .Composer class, that way it doesn't apply when clarkwinkelmann-composer-page extension is used
+    .Composer .ComposerBody--taxonomies-compact {
         // Don't affect .item-title (composer title) which is moved to the header on mobile and influences where other items start below
         .ComposerBody-header > li:not(.item-title) {
             // Reduce the vertical size of tag, taxonomies and title inputs on mobile to accommodate more of them

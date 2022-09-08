@@ -27,13 +27,15 @@ function applies(taxonomy: Taxonomy, instance: DiscussionComposer): boolean {
 
     // Show scoped taxonomies if one of their tag has been selected in the composer
     return selectedTags.some(tag => {
-        return taxonomy.tagIds().indexOf(tag.id()) !== -1;
+        return taxonomy.tagIds().indexOf(tag.id()!) !== -1;
     });
 }
 
 export default function () {
     extend(DiscussionComposer.prototype, 'oninit', function () {
-        this.selectedTaxonomyTerms = {};
+        if (!this.composer.fields.taxonomyTerms) {
+            this.composer.fields.taxonomyTerms = {};
+        }
     });
 
     extend(DiscussionComposer.prototype, 'headerItems', function (items) {
@@ -49,18 +51,23 @@ export default function () {
             }
 
             items.add('taxonomy-' + taxonomy.slug(), m('a.DiscussionComposer-changeTaxonomies', {
-                    onclick: () => {
+                    // This data-attribute isn't used by Taxonomies itself, but it's an easy shortcut for an extension that modifies the template and needs access to the field name
+                    'data-taxonomy-name': taxonomy.name(),
+                    href: '#', // Without an href value, the button can't be accessed via the keyboard
+                    onclick: (event: Event) => {
+                        event.preventDefault();
+
                         app.modal.show(ChooseTaxonomyTermsModal, {
                             taxonomy,
-                            selectedTerms: (this.selectedTaxonomyTerms[taxonomyId] || []).slice(0),
+                            selectedTerms: (this.composer.fields.taxonomyTerms[taxonomyId] || []).slice(0),
                             onsubmit: (terms: Term[]) => {
-                                this.selectedTaxonomyTerms[taxonomy.id()!] = terms;
+                                this.composer.fields.taxonomyTerms[taxonomy.id()!] = terms;
                                 this.$('textarea').trigger('focus');
                             },
                         });
                     },
-                }, this.selectedTaxonomyTerms[taxonomyId] && this.selectedTaxonomyTerms[taxonomyId].length
-                    ? termsLabel(this.selectedTaxonomyTerms[taxonomyId], {
+                }, this.composer.fields.taxonomyTerms[taxonomyId] && this.composer.fields.taxonomyTerms[taxonomyId].length
+                    ? termsLabel(this.composer.fields.taxonomyTerms[taxonomyId], {
                         taxonomy,
                     })
                     : m('span.TaxonomyLabel.untagged', [
@@ -89,15 +96,15 @@ export default function () {
                 return;
             }
 
-            const count = (this.selectedTaxonomyTerms[taxonomyId] || []).length;
+            const count = (this.composer.fields.taxonomyTerms[taxonomyId] || []).length;
 
             if (taxonomy.minTerms() && count < taxonomy.minTerms()) {
                 callbacks.push(resolve => {
                     app.modal.show(ChooseTaxonomyTermsModal, {
                         taxonomy,
-                        selectedTags: (this.selectedTaxonomyTerms[taxonomyId] || []).slice(0),
+                        selectedTags: (this.composer.fields.taxonomyTerms[taxonomyId] || []).slice(0),
                         onsubmit: (terms: Term[]) => {
-                            this.selectedTaxonomyTerms[taxonomyId] = terms;
+                            this.composer.fields.taxonomyTerms[taxonomyId] = terms;
                             resolve();
                         },
                     });
@@ -139,7 +146,7 @@ export default function () {
         }
     });
 
-    extend(DiscussionComposer.prototype, 'data', function (data) {
+    extend(DiscussionComposer.prototype, 'data', function (data: any) {
         const taxonomyData: any[] = [];
 
         // We put all term IDs from all taxonomies together for the request
@@ -154,14 +161,14 @@ export default function () {
                 return;
             }
 
-            if (this.selectedTaxonomyTerms[taxonomyId] && this.selectedTaxonomyTerms[taxonomyId].length) {
+            if (this.composer.fields.taxonomyTerms[taxonomyId] && this.composer.fields.taxonomyTerms[taxonomyId].length) {
                 taxonomyData.push({
                     verbatim: true, // Flarum workaround, defined in flamarkt/core
                     type: 'flamarkt-taxonomies',
                     id: taxonomyId,
                     relationships: {
                         terms: {
-                            data: this.selectedTaxonomyTerms[taxonomyId].map(termToIdentifier),
+                            data: this.composer.fields.taxonomyTerms[taxonomyId].map(termToIdentifier),
                         },
                     },
                 });

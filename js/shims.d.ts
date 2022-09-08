@@ -7,11 +7,17 @@ declare module 'flarum/common/models/Forum' {
 }
 
 import Term from './src/common/models/Term';
+import Tag from 'flarum/tags/common/models/Tag';
 
 declare module 'flarum/forum/components/DiscussionComposer' {
     export default interface DiscussionComposer {
-        selectedTaxonomyTerms: {
-            [taxonomyUniqueKey: string]: Term[]
+        composer: {
+            fields: {
+                tags: Tag[]
+                taxonomyTerms: {
+                    [taxonomyUniqueKey: string]: Term[]
+                }
+            }
         }
         taxonomiesHeaderItemsCount?: number
     }
