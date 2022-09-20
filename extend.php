@@ -93,7 +93,7 @@ return [
         ->add(Middlewares\NestedArrayFilterToJSON::class),
 
     (new Extend\Middleware('forum'))
-        ->add(Middlewares\StickyIndexParams::class),
+        ->add(Middlewares\StickyDiscussionParams::class),
 
     (new Extenders\TaxonomizeModel(
         'discussions',
