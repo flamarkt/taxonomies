@@ -12,8 +12,10 @@ class TaxonomyPolicy extends AbstractPolicy
     {
         // For now, it's all or nothing. If you are allowed to see or edit anything, we expose the full list of existing taxonomies
         return $actor->hasPermission('taxonomies.moderate') ||
+            $actor->hasPermission('discussion.seeAnyTaxonomy') ||
             $actor->hasPermission('discussion.seeOwnTaxonomy') ||
             $actor->hasPermission('discussion.editOwnTaxonomy') ||
+            $actor->hasPermission('user.seeAnyTaxonomy') ||
             $actor->hasPermission('user.seeOwnTaxonomy') ||
             $actor->hasPermission('user.editOwnTaxonomy');
     }
