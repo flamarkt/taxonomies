@@ -4,3 +4,15 @@
 @import 'backoffice/EditModal';
 @import 'backoffice/TaxonomyTabs';
 @import 'backoffice/TaxonomyTermsList';
+
+.App-nav .AdminNav .Dropdown-menu > li {
+    > a.TaxonomiesChildNav {
+        padding-left: 62px;
+    }
+
+    // Change active color of children to same color used on hover
+    &.active > a.TaxonomiesChildNav {
+        background: var(--control-bg);
+        color: var(--text-color);
+    }
+}

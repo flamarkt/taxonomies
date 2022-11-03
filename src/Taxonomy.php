@@ -22,6 +22,8 @@ use Illuminate\Support\Str;
  * @property string $scope
  * @property bool $show_label
  * @property bool $show_filter
+ * @property bool $enable_filter
+ * @property bool $enable_fulltext_search
  * @property bool $allow_custom_values
  * @property string $custom_value_validation
  * @property string $custom_value_slugger
@@ -49,8 +51,12 @@ class Taxonomy extends AbstractModel
         'description',
         'color',
         'icon',
+        // `order` not fillable: updated through dedicated "order" controller
+        // `scope` not fillable: updated through virtual tag_ids attribute
         'show_label',
         'show_filter',
+        'enable_filter',
+        'enable_fulltext_search',
         'allow_custom_values',
         'custom_value_validation',
         'custom_value_slugger',
@@ -63,6 +69,8 @@ class Taxonomy extends AbstractModel
         'order' => 'int',
         'show_label' => 'bool',
         'show_filter' => 'bool',
+        'enable_filter' => 'bool',
+        'enable_fulltext_search' => 'bool',
         'allow_custom_values' => 'bool',
         'min_terms' => 'int',
         'max_terms' => 'int',
@@ -117,7 +125,7 @@ class Taxonomy extends AbstractModel
         $extensionManager = resolve(ExtensionManager::class);
 
         if (!$extensionManager->isEnabled('flarum-tags')) {
-            throw new \Exception('Discussion taxonomy ' . $taxonomy->slug . ' is scoped by tag but tags extension is disabled');
+            throw new \Exception('Discussion taxonomy ' . $this->slug . ' is scoped by tag but tags extension is disabled');
         }
 
         return $discussionTagIds->intersect($tagIds)->isNotEmpty();

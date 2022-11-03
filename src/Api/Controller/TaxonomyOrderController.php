@@ -33,11 +33,12 @@ class TaxonomyOrderController extends AbstractListController
 
         $this->validator->assertValid($attributes);
 
-        $order = Arr::get($attributes, 'order') ?: [];
+        $order = (array)Arr::get($attributes, 'order');
+        $type = (string)Arr::get($attributes, 'type') ?: null;
 
-        $this->repository->sorting($actor, $order);
+        $this->repository->sorting($actor, $order, $type);
 
         // Return updated order values
-        return $this->repository->all();
+        return $this->repository->all($type);
     }
 }

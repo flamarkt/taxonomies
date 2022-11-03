@@ -2,6 +2,7 @@
 
 namespace Flamarkt\Taxonomies;
 
+use ClarkWinkelmann\Scout\Extend\Scout;
 use Flamarkt\Core\Api\Controller as FlamarktController;
 use Flamarkt\Core\Api\Serializer\ProductSerializer;
 use Flamarkt\Core\Product\Event\Saving as ProductSaving;
@@ -23,7 +24,7 @@ use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
-return [
+$extenders = [
     (new Extend\Frontend('admin'))
         ->js(__DIR__ . '/js/dist/admin.js'),
 
@@ -34,7 +35,7 @@ return [
     (new Extend\Frontend('backoffice'))
         ->js(__DIR__ . '/js/dist/backoffice.js')
         ->css(__DIR__ . '/resources/less/backoffice.less')
-        ->route('/taxonomies', 'taxonomies.index'),
+        ->route('/taxonomies[/{resource:(?:discussions|users|products)}]', 'taxonomies.index'),
 
     (new Extend\Frontend('forum'))
         ->js(__DIR__ . '/js/dist/forum.js')
@@ -65,6 +66,9 @@ return [
             return $serializer->getActor()->hasPermission('discussion.editOwnTaxonomy');
         })
         ->hasMany('taxonomies', Api\Serializer\TaxonomySerializer::class),
+
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attributes(ForumAttributes::class),
 
     (new Extend\ApiController(Controller\ShowForumController::class))
         ->addInclude('taxonomies')
@@ -158,3 +162,22 @@ return [
     (new Extend\ErrorHandling())
         ->handler(Exceptions\InvalidFilterTaxonomy::class, Exceptions\InvalidFilterTaxonomyHandler::class),
 ];
+
+if (class_exists(Scout::class)) {
+    $extenders = array_merge($extenders, [
+        (new Scout(Discussion::class))
+            // This extender method isn't really tied to the specific model passed to the constructor
+            // Since all models supported by Taxonomies will also support Scout we don't need to check for event->model instanceof
+            // This single listener will automatically take care of every supported model
+            ->listenSaved(Events\ModelTaxonomiesChanged::class, function (Events\ModelTaxonomiesChanged $event) {
+                return $event->model;
+            })
+            ->attributes(ScoutAttributes::class),
+        (new Scout(User::class))
+            ->attributes(ScoutAttributes::class),
+        (new Scout(Product::class))
+            ->attributes(ScoutAttributes::class),
+    ]);
+}
+
+return $extenders;

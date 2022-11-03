@@ -4,7 +4,7 @@ Taxonomies for Flarum discussions, users and Flamarkt products.
 
 The extension can be used with or without Flamarkt installed.
 
-# Installation
+## Installation
 
 This extension will follow the future Flamarkt release cycles with possibly a few major `0.x` versions during the beta.
 While this extension is pretty stable, manual operations might still be required between major versions.
@@ -21,7 +21,21 @@ If you install Flamarkt in the future, you might need to run `php flarum migrate
 All types of taxonomies are currently shown on a single page without proper separation.
 Dedicated pages will be introduced in a future release.
 
-# Known issues
+## Scout Integration
+
+Taxonomies will automatically integrate with the [Scout extension](https://github.com/clarkwinkelmann/flarum-ext-scout) when both extensions are enabled.
+Only version 0.3+ of Scout is supported. Using Taxonomies with an older version of Scout will result in errors.
+
+With this integration, the taxonomy term names can become part of the discussion, user and product indexes.
+
+This feature can be manually toggled for each individual taxonomy.
+You must manually re-build the search index if you change the setting on an existing Taxonomy or if you delete a Taxonomy while terms are still attached to the resources.
+
+Due to the way Scout is designed, the same search index is used for all users.
+Once part of the index, any user with the permission to list the resource ("View forum" for discussions, "Search users" for users and everyone for products) will be able to use the terms in a search query even if they are not authorized to see the taxonomies.
+You probably shouldn't enable this feature unless you are certain all your data for this resource type is public or that the whole forum is closed off to unauthorized users.
+
+## Known issues
 
 The backoffice for terms management is currently not paginated.
 This can lead to backoffice performance issues with large numbers of terms, which is more likely to happen when custom values are allowed.
@@ -39,7 +53,7 @@ If you change the tags of a discussion, you might be unable to edit its taxonomi
 
 Flamarkt Product support is still a work in progress.
 
-# Support
+## Support
 
 This extension is actively supported.
 Please use the Flarum Discuss discussion to discuss features and report issues.

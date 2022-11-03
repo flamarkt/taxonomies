@@ -2,6 +2,7 @@
 
 namespace Flamarkt\Taxonomies\Extenders;
 
+use Flamarkt\Taxonomies\Events\ModelTaxonomiesChanged;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Database\AbstractModel;
 use Flarum\Extend\ApiController;
@@ -17,6 +18,7 @@ use Flarum\Locale\Translator;
 use Flarum\User\User;
 use FoF\Transliterator\Transliterator;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -121,12 +123,19 @@ class TaxonomizeModel implements ExtenderInterface
 
         $alreadyValidatedMinimums = [];
 
-        $taxonomiesData = Arr::get($data, 'relationships.taxonomies.data', []);
+        $rawTaxonomiesData = Arr::get($data, 'relationships.taxonomies.data');
+        $taxonomiesData = [];
 
-        if (count($taxonomiesData) && $actor->cannot('editTaxonomy', $model)) {
-            throw new ValidationException([], [
-                'taxonomyTerms' => resolve(Translator::class)->trans('flamarkt-taxonomies.api.error.cannot_use_taxonomies_on_model'),
-            ]);
+        // Ideally I would use an early return statement here but there is the logic for missing taxonomies at the very end of the long method
+        // and it's not practical to refactor it in multiple methods
+        if (is_array($rawTaxonomiesData) && count($rawTaxonomiesData)) {
+            if ($actor->cannot('editTaxonomy', $model)) {
+                throw new ValidationException([], [
+                    'taxonomyTerms' => resolve(Translator::class)->trans('flamarkt-taxonomies.api.error.cannot_use_taxonomies_on_model'),
+                ]);
+            }
+
+            $taxonomiesData = $rawTaxonomiesData;
         }
 
         $discussionTagIds = collect();
@@ -285,7 +294,7 @@ class TaxonomizeModel implements ExtenderInterface
                 $newTermIds[] = $term->id;
             }
 
-            $model->afterSave(function (AbstractModel $model) use ($taxonomy, $newTermIds) {
+            $model->afterSave(function (AbstractModel $model) use ($taxonomy, $newTermIds, $actor) {
                 // Implementation similar to $relationship->sync(), but taxonomy-aware
 
                 $currentTermIds = $model->taxonomyTerms()->where('taxonomy_id', $taxonomy->id)->pluck('id')->all();
@@ -298,6 +307,11 @@ class TaxonomizeModel implements ExtenderInterface
                 $attach = array_diff($newTermIds, $currentTermIds);
                 if (count($attach) > 0) {
                     $model->taxonomyTerms()->attach($attach);
+                }
+
+                if (!$model->wasRecentlyCreated) {
+                    $events = resolve(Dispatcher::class);
+                    $events->dispatch(new ModelTaxonomiesChanged($model, $taxonomy, $currentTermIds, $actor));
                 }
             });
         }

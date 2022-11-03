@@ -6,6 +6,7 @@ use Flamarkt\Taxonomies\Api\Serializer\TaxonomySerializer;
 use Flamarkt\Taxonomies\Repositories\TaxonomyRepository;
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Http\RequestUtil;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -25,6 +26,6 @@ class TaxonomyIndexController extends AbstractListController
         $actor = RequestUtil::getActor($request);
         $actor->assertCan('taxonomies.moderate');
 
-        return $this->repository->all();
+        return $this->repository->all(Arr::get($request->getQueryParams(), 'filter.type'));
     }
 }

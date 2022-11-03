@@ -12,6 +12,11 @@
         color: @muted-color;
         border-radius: @border-radius @border-radius 0 0;
 
+        // Last tab will always be the "create" button which cannot be moved
+        &:last-child {
+            cursor: pointer;
+        }
+
         .Button {
             margin: -10px -15px -10px -8px;
         }

@@ -23,6 +23,8 @@ class DiscussionPolicy extends AbstractPolicy
     public function editTaxonomy(User $actor, Discussion $discussion)
     {
         // For new discussions, we just check editOwnTaxonomy
+        // We can't use the tag-scoped permission here since the discussion won't have its tags saved at this moment
+        // The taxonomy+tag validity is still checked with Taxonomy::appliesToDiscussion() in the TaxonomizeModel code
         if (!$discussion->exists && $actor->hasPermission('discussion.editOwnTaxonomy')) {
             return $this->forceAllow();
         }

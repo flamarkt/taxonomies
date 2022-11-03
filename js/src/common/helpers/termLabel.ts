@@ -22,7 +22,7 @@ export default function termLabel(term: Taxonomy | Term | null = null, attrs: At
         }
 
         // We need to check for instanceof because this method is also used with a taxonomy passed as a value
-        if (term instanceof Term && term.taxonomy() && term.taxonomy().showFilter()) {
+        if (term instanceof Term && term.taxonomy() && term.taxonomy().canSearch()) {
             if (discussionLink) {
                 attrs.title = term.description() || '';
                 attrs.href = app.route('index', {[term.taxonomy().slug()]: term.slug()});

@@ -30,6 +30,8 @@ class TaxonomyValidator extends AbstractValidator
             'icon' => 'nullable|string|min:3|max:255',
             'showLabel' => 'boolean',
             'show_filter' => 'boolean',
+            'enable_filter' => 'boolean',
+            'enable_fulltext_search' => 'boolean',
             'allow_custom_values' => 'boolean',
             'custom_value_validation' => 'nullable|string|min:3|max:255',
             'custom_value_slugger' => 'nullable|in:random,alpha_dash,transliterator',

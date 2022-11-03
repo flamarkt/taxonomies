@@ -20,9 +20,31 @@ class TaxonomyPolicy extends AbstractPolicy
             $actor->hasPermission('user.editOwnTaxonomy');
     }
 
-    public function search(User $actor, Taxonomy $taxonomy): bool
+    public function search(User $actor, Taxonomy $taxonomy)
     {
-        return $this->canSeeAllTaxonomies($actor);
+        // Moderators can always filter. This is needed for admin/backoffice filters
+        if ($actor->hasPermission('taxonomies.moderate')) {
+            return $this->allow();
+        }
+
+        // If the setting was not enabled on the taxonomy, no need to even check permissions
+        if (!$taxonomy->enable_filter) {
+            return $this->deny();
+        }
+
+        // Only allow searching if the user can see taxonomies of the type's models
+        // Otherwise information from hidden taxonomies on public content could be leaked through guessing
+        switch ($taxonomy->type) {
+            case 'discussions':
+                return $actor->hasPermission('discussion.seeAnyTaxonomy');
+            case 'users':
+                return $actor->hasPermission('user.seeAnyTaxonomy');
+            case 'products':
+                // Products currently don't have permissions, guests can always see them
+                return $this->allow();
+        }
+
+        return $this->deny();
     }
 
     public function listTerms(User $actor, Taxonomy $taxonomy): bool

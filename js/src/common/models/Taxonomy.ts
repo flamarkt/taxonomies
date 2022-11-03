@@ -10,6 +10,8 @@ export default class Taxonomy extends Model {
     order = Model.attribute<number>('order');
     showLabel = Model.attribute<boolean>('showLabel');
     showFilter = Model.attribute<boolean>('showFilter');
+    enableFilter = Model.attribute<boolean>('enableFilter');
+    enableFulltextSearch = Model.attribute<boolean>('enableFulltextSearch');
     allowCustomValues = Model.attribute<boolean>('allowCustomValues');
     customValueValidation = Model.attribute<string | null>('customValueValidation');
     customValueSlugger = Model.attribute<string | null>('customValueSlugger');

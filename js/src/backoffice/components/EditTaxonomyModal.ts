@@ -12,6 +12,7 @@ import Tag from 'flarum/tags/common/models/Tag';
 import isExtensionEnabled from 'flarum/admin/utils/isExtensionEnabled';
 
 export interface EditTaxonomyModalAttrs extends AbstractEditModalAttrs {
+    type?: string
     taxonomy: Taxonomy
     onsave?: (taxonomy: Taxonomy) => void
     ondelete?: () => void
@@ -26,6 +27,8 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
     icon!: string
     showLabel!: boolean
     showFilter!: boolean
+    enableFilter!: boolean
+    enableFulltextSearch!: boolean
     allowCustomValues!: boolean
     customValueValidation!: string
     customValueSlugger!: string
@@ -41,7 +44,7 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
 
         const {taxonomy} = this.attrs;
 
-        this.type = taxonomy ? taxonomy.type() : 'discussions';
+        this.type = taxonomy ? taxonomy.type() : (this.attrs.type || 'discussions');
         this.name = taxonomy ? taxonomy.name() : '';
         this.slug = taxonomy ? taxonomy.slug() : '';
         this.description = taxonomy ? taxonomy.description() : '';
@@ -49,6 +52,8 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
         this.icon = taxonomy ? taxonomy.icon() : '';
         this.showLabel = taxonomy ? taxonomy.showLabel() : false;
         this.showFilter = taxonomy ? taxonomy.showFilter() : false;
+        this.enableFilter = taxonomy ? taxonomy.enableFilter() : false;
+        this.enableFulltextSearch = taxonomy ? taxonomy.enableFulltextSearch() : false;
         this.allowCustomValues = taxonomy ? taxonomy.allowCustomValues() : false;
         this.customValueValidation = (taxonomy ? taxonomy.customValueValidation() : null) || '';
         this.customValueSlugger = (taxonomy ? taxonomy.customValueSlugger() : null) || 'random';
@@ -83,37 +88,31 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
         return !this.attrs.taxonomy;
     }
 
+    className(): string {
+        return 'TaxonomyEditModal TaxonomyModal--withColumns';
+    }
+
     form(): any {
-        return this.formItems().toArray();
+        return m('.TaxonomyModal-Columns', [
+            m('.TaxonomyModal-Column', [
+                m('h3', app.translator.trans(this.translationPrefix() + 'section.info')),
+                this.formItems().toArray(),
+            ]),
+            m('.TaxonomyModal-Column', [
+                m('h3', app.translator.trans(this.translationPrefix() + 'section.filling')),
+                this.fillItems().toArray(),
+                m('h3', app.translator.trans(this.translationPrefix() + 'section.scope')),
+                this.scopeItems().toArray(),
+            ]),
+            m('.TaxonomyModal-Column', [
+                m('h3', app.translator.trans(this.translationPrefix() + 'section.browsing')),
+                this.browseItems().toArray(),
+            ]),
+        ]);
     }
 
     formItems() {
         const items = new ItemList();
-
-        const options: any = {
-            discussions: app.translator.trans(this.translationPrefix() + 'type-options.discussions'),
-            users: app.translator.trans(this.translationPrefix() + 'type-options.users'),
-        };
-
-        if ('flamarkt-core' in flarum.extensions || this.type === 'products') {
-            options.products = app.translator.trans(this.translationPrefix() + 'type-options.products');
-        }
-
-        items.add('type', m('.Form-group', [
-            m('label', app.translator.trans(this.translationPrefix() + 'field.type')),
-            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.typeDescription')),
-            Select.component({
-                options,
-                value: this.type,
-                onchange: (value: string) => {
-                    this.type = value;
-                    this.dirty = true;
-
-                    this.loadAllTagsIfNeeded();
-                },
-                disabled: !this.isNew(),
-            }),
-        ]));
 
         items.add('name', m('.Form-group', [
             m('label', app.translator.trans(this.translationPrefix() + 'field.name')),
@@ -186,33 +185,39 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
             }),
         ]));
 
-        items.add('show-label', m('.Form-group', [
-            m('label', [
-                m('input', {
-                    type: 'checkbox',
-                    checked: this.showLabel,
-                    onchange: () => {
-                        this.showLabel = !this.showLabel;
-                        this.dirty = true;
-                    },
-                }),
-                ' ',
-                app.translator.trans(this.translationPrefix() + 'field.showLabel'),
-            ]),
-        ]));
+        return items;
+    }
 
-        items.add('show-filter', m('.Form-group', [
-            m('label', [
-                m('input', {
-                    type: 'checkbox',
-                    checked: this.showFilter,
-                    onchange: () => {
-                        this.showFilter = !this.showFilter;
+    fillItems() {
+        const items = new ItemList();
+
+        items.add('field-counts', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.countRequired')),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.countRequiredDescription')),
+            m('.TaxonomyModal-rangeInput', [
+                m('input.FormControl', {
+                    type: 'number',
+                    min: 0,
+                    step: 1,
+                    value: this.minTerms,
+                    oninput: withAttr('value', (value: string) => {
+                        this.minTerms = parseInt(value) || '';
                         this.dirty = true;
-                    },
+                    }),
                 }),
                 ' ',
-                app.translator.trans(this.translationPrefix() + 'field.showFilter'),
+                app.translator.trans(this.translationPrefix() + 'field.rangeSeparatorText'),
+                ' ',
+                m('input.FormControl', {
+                    type: 'number',
+                    min: 0,
+                    step: 1,
+                    value: this.maxTerms,
+                    oninput: withAttr('value', (value: string) => {
+                        this.maxTerms = parseInt(value) || '';
+                        this.dirty = true;
+                    }),
+                }),
             ]),
         ]));
 
@@ -289,34 +294,116 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
             }),
         ]));
 
-        items.add('field-counts', m('.Form-group', [
-            m('label', app.translator.trans(this.translationPrefix() + 'field.countRequired')),
-            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.countRequiredDescription')),
-            m('.TaxonomyModal-rangeInput', [
-                m('input.FormControl', {
-                    type: 'number',
-                    min: 0,
-                    step: 1,
-                    value: this.minTerms,
-                    oninput: withAttr('value', (value: string) => {
-                        this.minTerms = parseInt(value) || '';
+        return items;
+    }
+
+    browseItems() {
+        const items = new ItemList();
+
+        items.add('show-label', m('.Form-group', [
+            m('label', [
+                m('input', {
+                    type: 'checkbox',
+                    checked: this.showLabel,
+                    onchange: () => {
+                        this.showLabel = !this.showLabel;
                         this.dirty = true;
-                    }),
+                    },
                 }),
                 ' ',
-                app.translator.trans(this.translationPrefix() + 'field.rangeSeparatorText'),
-                ' ',
-                m('input.FormControl', {
-                    type: 'number',
-                    min: 0,
-                    step: 1,
-                    value: this.maxTerms,
-                    oninput: withAttr('value', (value: string) => {
-                        this.maxTerms = parseInt(value) || '';
-                        this.dirty = true;
-                    }),
-                }),
+                app.translator.trans(this.translationPrefix() + 'field.showLabel'),
             ]),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.showLabelDescription')),
+        ]));
+
+        items.add('enable-filter', m('.Form-group', [
+            m('label', [
+                m('input', {
+                    type: 'checkbox',
+                    checked: this.enableFilter,
+                    onchange: () => {
+                        this.enableFilter = !this.enableFilter;
+                        this.dirty = true;
+
+                        if (!this.enableFilter && this.showFilter) {
+                            this.showFilter = false;
+                        }
+                    },
+                }),
+                ' ',
+                app.translator.trans(this.translationPrefix() + 'field.enableFilter'),
+            ]),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.enableFilterDescription')),
+        ]));
+
+        items.add('show-filter', m('.Form-group', [
+            m('label', [
+                m('input', {
+                    type: 'checkbox',
+                    checked: this.showFilter,
+                    onchange: () => {
+                        this.showFilter = !this.showFilter;
+                        this.dirty = true;
+
+                        if (this.showFilter && !this.enableFilter) {
+                            this.enableFilter = true;
+                        }
+                    },
+                }),
+                ' ',
+                app.translator.trans(this.translationPrefix() + 'field.showFilter'),
+            ]),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.showFilterDescription')),
+        ]));
+
+        const accessDiffers = app.forum.attribute<any>('taxonomiesFulltextAccessDiffersFromFilter') || {};
+
+        items.add('enable-fulltext-search', m('.Form-group', [
+            m('label', [
+                m('input', {
+                    type: 'checkbox',
+                    checked: this.enableFulltextSearch,
+                    onchange: () => {
+                        this.enableFulltextSearch = !this.enableFulltextSearch;
+                        this.dirty = true;
+                    },
+                }),
+                ' ',
+                app.translator.trans(this.translationPrefix() + 'field.enableFulltextSearch'),
+            ]),
+            accessDiffers[this.type] ? m('.Alert', app.translator.trans(this.translationPrefix() + 'field.enableFulltextSearchWarning')) : null,
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.enableFulltextSearchDescription')),
+        ]));
+
+        return items;
+    }
+
+    scopeItems() {
+        const items = new ItemList();
+
+        const options: any = {
+            discussions: app.translator.trans(this.translationPrefix() + 'type-options.discussions'),
+            users: app.translator.trans(this.translationPrefix() + 'type-options.users'),
+        };
+
+        if ('flamarkt-core' in flarum.extensions || this.type === 'products') {
+            options.products = app.translator.trans(this.translationPrefix() + 'type-options.products');
+        }
+
+        items.add('type', m('.Form-group', [
+            m('label', app.translator.trans(this.translationPrefix() + 'field.type')),
+            m('.helpText', app.translator.trans(this.translationPrefix() + 'field.typeDescription')),
+            Select.component({
+                options,
+                value: this.type,
+                onchange: (value: string) => {
+                    this.type = value;
+                    this.dirty = true;
+
+                    this.loadAllTagsIfNeeded();
+                },
+                disabled: !this.isNew(),
+            }),
         ]));
 
         if (this.type === 'discussions' && isExtensionEnabled('flarum-tags')) {
@@ -381,6 +468,8 @@ export default class EditTaxonomyModal extends AbstractEditModal<EditTaxonomyMod
             icon: this.icon,
             show_label: this.showLabel,
             show_filter: this.showFilter,
+            enable_filter: this.enableFilter,
+            enable_fulltext_search: this.enableFulltextSearch,
             allow_custom_values: this.allowCustomValues,
             custom_value_validation: this.customValueValidation,
             custom_value_slugger: this.customValueSlugger,

@@ -27,51 +27,50 @@ class TaxonomyRepository
         $this->events = $events;
     }
 
-    protected function query(): Builder
+    /**
+     * Start a new query for the given type or all taxonomies
+     * @param string|null $type
+     * @return Builder
+     */
+    protected function query(string $type = null): Builder
     {
         return $this->taxonomy->newQuery()
             ->orderBy('order')
-            ->orderBy('name');
+            ->orderBy('name')
+            ->tap(function (Builder $query) use ($type) {
+                if ($type) {
+                    $query->where('type', $type);
+                }
+            });
     }
 
     /**
      * @param $id
-     * @param string $type
+     * @param string|null $type
      * @return Model|Taxonomy
      */
-    public function findIdOrFail($id, $type = null): Taxonomy
+    public function findIdOrFail($id, string $type = null): Taxonomy
     {
-        $query = $this->taxonomy->newQuery();
-
-        if ($type) {
-            $query->where('type', $type);
-        }
-
-        return $query->findOrFail($id);
+        return $this->query($type)->findOrFail($id);
     }
 
     /**
      * @param string $slug
-     * @param string $type
+     * @param string|null $type
      * @return Model|Taxonomy
      */
-    public function findSlugOrFail(string $slug, $type = null): Taxonomy
+    public function findSlugOrFail(string $slug, string $type = null): Taxonomy
     {
-        $query = $this->taxonomy->newQuery();
-
-        if ($type) {
-            $query->where('type', $type);
-        }
-
-        return $query->where('slug', $slug)->firstOrFail();
+        return $this->query($type)->where('slug', $slug)->firstOrFail();
     }
 
     /**
+     * @param string|null $type Optionally limit to taxonomies of a given type
      * @return Collection|Taxonomy[]
      */
-    public function all(): Collection
+    public function all(string $type = null): Collection
     {
-        return $this->query()->get();
+        return $this->query($type)->get();
     }
 
     public function store(User $actor, array $attributes): Taxonomy
@@ -114,15 +113,14 @@ class TaxonomyRepository
         $this->events->dispatch(new Deleted($taxonomy, $actor, []));
     }
 
-    public function sorting(User $actor, array $order)
+    public function sorting(User $actor, array $order, string $type = null)
     {
-        $this->taxonomy->newQuery()->update([
+        $this->query($type)->update([
             'order' => null,
         ]);
 
         foreach ($order as $index => $taxonomyId) {
-            $this->taxonomy
-                ->newQuery()
+            $this->query($type)
                 ->where('id', $taxonomyId)
                 ->update(['order' => $index + 1]);
         }

@@ -39,6 +39,8 @@ class TaxonomySerializer extends AbstractSerializer
 
         if ($this->actor->isAdmin()) {
             $attributes += [
+                'enableFilter' => $taxonomy->enable_filter,
+                'enableFulltextSearch' => $taxonomy->enable_fulltext_search,
                 'customValueSlugger' => $taxonomy->custom_value_slugger,
                 'createdAt' => $this->formatDate($taxonomy->created_at),
             ];

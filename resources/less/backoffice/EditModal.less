@@ -22,3 +22,29 @@
         padding: 8px 2px; // So it aligns vertically with the text inputs
     }
 }
+
+.TaxonomyModal--withColumns {
+    max-width: 1200px;
+}
+
+.TaxonomyModal-Column {
+    // Same as .Form-group since .Form-group will cancel its margin for the last child
+    margin-bottom: 20px;
+
+    .Form-group {
+        // Slightly smaller margin than original or the modal takes a lot more vertical space than needed
+        margin-bottom: 20px;
+    }
+}
+
+
+@media @tablet-up {
+    .TaxonomyModal-Columns {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .TaxonomyModal-Column {
+        width: ~'calc(33% - 15px)';
+    }
+}
