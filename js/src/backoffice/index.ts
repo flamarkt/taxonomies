@@ -40,7 +40,9 @@ app.initializers.add('flamarkt-taxonomies', () => {
     app.extensionData.for('flamarkt-taxonomies').registerSetting(() => {
         return m('.Form-group', LinkButton.component({
             className: 'Button',
-            href: app.route('taxonomies'),
+            href: app.route('taxonomies', {
+                resource: 'discussions',
+            }),
         }, app.translator.trans('flamarkt-taxonomies.admin.settings.goToPage')));
     });
 
