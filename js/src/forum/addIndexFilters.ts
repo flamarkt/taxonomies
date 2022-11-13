@@ -57,7 +57,7 @@ export default function () {
     });
 
     extend(GlobalSearchState.prototype, 'stickyParams', function (params) {
-        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions')).forEach(taxonomy => {
+        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions', true)).forEach(taxonomy => {
             params[taxonomy.slug()] = m.route.param(taxonomy.slug());
         });
     });
@@ -67,7 +67,7 @@ export default function () {
         // Same includes are pre-loaded in DiscussionAttributes.php
         params.include.push('taxonomyTerms', 'taxonomyTerms.taxonomy');
 
-        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions')).forEach(taxonomy => {
+        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('discussions', true)).forEach(taxonomy => {
             const filterTermSlug = this.params[taxonomy.slug()];
 
             if (filterTermSlug) {

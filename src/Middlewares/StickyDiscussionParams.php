@@ -43,7 +43,7 @@ class StickyDiscussionParams implements MiddlewareInterface
         $taxonomies = Taxonomy::query()
             ->where('type', 'discussions')
             ->whereIn('slug', $possibleTaxonomyParams)
-            ->where('show_filter', true)
+            ->where('enable_filter', true)
             ->get();
 
         foreach ($taxonomies as $taxonomy) {

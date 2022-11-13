@@ -43,7 +43,7 @@ export default function () {
     extend(ProductIndexPage.prototype, 'initState', function (state) {
         const params = m.route.param();
 
-        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('products')).forEach(taxonomy => {
+        sortTaxonomies(app.store.all('flamarkt-taxonomies')).filter(showsFilterFor('products', true)).forEach(taxonomy => {
             const filterTermSlug = params[taxonomy.slug()];
 
             if (filterTermSlug) {
