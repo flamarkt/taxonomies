@@ -1,5 +1,6 @@
 import {Attributes} from 'mithril';
 import app from 'flarum/common/app';
+import Link from 'flarum/common/components/Link';
 import extract from 'flarum/common/utils/extract';
 import Term from '../models/Term';
 import taxonomyIcon from './taxonomyIcon';
@@ -12,7 +13,7 @@ export default function termLabel(term: Taxonomy | Term | null = null, attrs: At
     const discussionLink = extract(attrs, 'discussionLink');
     const userLink = extract(attrs, 'userLink');
     const tagText = term ? term.name() : app.translator.trans('flarum-tags.lib.deleted_tag_text');
-    let tag = 'span';
+    let tag: any = 'span';
 
     if (term) {
         const color = term.color();
@@ -26,16 +27,14 @@ export default function termLabel(term: Taxonomy | Term | null = null, attrs: At
             if (discussionLink) {
                 attrs.title = term.description() || '';
                 attrs.href = app.route('index', {[term.taxonomy().slug()]: term.slug()});
-                attrs.config = m.route;
-                tag = 'a';
+                tag = Link;
             }
 
             // Only generate user taxonomy links if fof/user-directory is enabled
             if (userLink && app.routes.fof_user_directory) {
                 attrs.title = term.description() || '';
                 attrs.href = app.route('fof_user_directory', {q: 'taxonomy:' + term.taxonomy().slug() + ':' + term.slug()});
-                attrs.config = m.route;
-                tag = 'a';
+                tag = Link;
             }
         }
     } else {
