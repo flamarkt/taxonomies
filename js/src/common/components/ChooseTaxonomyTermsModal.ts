@@ -1,6 +1,5 @@
 import {Children, Vnode} from 'mithril';
 import app from 'flarum/common/app';
-import {ApiPayloadPlural} from 'flarum/common/Store';
 import Modal, {IInternalModalAttrs} from 'flarum/common/components/Modal';
 import Model from 'flarum/common/Model';
 import DiscussionPage from 'flarum/forum/components/DiscussionPage';
@@ -19,6 +18,7 @@ import taxonomyIcon from '../helpers/taxonomyIcon';
 import termToIdentifier from '../utils/termToIdentifier';
 import Term from '../models/Term';
 import Taxonomy from '../models/Taxonomy';
+import retrieveTerms from '../utils/retrieveTerms';
 
 /**
  * Comparing objects directly is unreliable because we will be creating some new records as well
@@ -76,11 +76,8 @@ export default class ChooseTaxonomyTermsModal extends Modal<ChooseTaxonomyTermsM
             });
         }
 
-        app.request<ApiPayloadPlural>({
-            method: 'GET',
-            url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiEndpoint() + '/terms',
-        }).then(result => {
-            this.availableTerms = app.store.pushPayload<Term[]>(result);
+        retrieveTerms(this.attrs.taxonomy).then(terms => {
+            this.availableTerms = terms;
 
             m.redraw();
         });

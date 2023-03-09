@@ -10,6 +10,7 @@ import EditTermModal from './EditTermModal';
 import taxonomyIcon from '../../common/helpers/taxonomyIcon';
 import Term from '../../common/models/Term';
 import Taxonomy from '../../common/models/Taxonomy';
+import retrieveTerms from '../../common/utils/retrieveTerms';
 
 interface TaxonomyTermsListAttrs extends ComponentAttrs {
     taxonomy: Taxonomy
@@ -21,11 +22,8 @@ export default class TaxonomyTermsList extends Component<TaxonomyTermsListAttrs>
     oninit(vnode: Vnode<TaxonomyTermsListAttrs, this>) {
         super.oninit(vnode);
 
-        app.request<ApiPayloadPlural>({
-            method: 'GET',
-            url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiTermsEndpoint(),
-        }).then(result => {
-            this.terms = app.store.pushPayload<Term[]>(result);
+        retrieveTerms(this.attrs.taxonomy).then(terms => {
+            this.terms = terms;
             m.redraw();
         });
     }

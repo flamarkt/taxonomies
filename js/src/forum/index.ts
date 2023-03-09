@@ -4,6 +4,7 @@ import {forum} from './compat';
 import addBlogContent from './addBlogContent';
 import addComposerControls, {delayedComposerHooks} from './addComposerControls';
 import addDiscussionControls from './addDiscussionControls';
+import addFoFDraftsSupport from './addFoFDraftsSupport';
 import addIndexFilters from './addIndexFilters';
 import addLabels from './addLabels';
 import addPages from './addPages';
@@ -21,6 +22,7 @@ app.initializers.add('flamarkt-taxonomies', () => {
     addBlogContent();
     addComposerControls();
     addDiscussionControls();
+    addFoFDraftsSupport();
     addIndexFilters();
     addLabels();
     addPages();

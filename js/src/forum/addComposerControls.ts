@@ -147,6 +147,12 @@ export default function () {
     });
 
     extend(DiscussionComposer.prototype, 'data', function (data: any) {
+        // fof/drafts calls this method before oninit, which causes the code to fail without any error message
+        // So if this happens we'll just exit early, there won't be any taxonomy selected yet anyway
+        if (!this.composer.fields.taxonomyTerms) {
+            return;
+        }
+
         const taxonomyData: any[] = [];
 
         // We put all term IDs from all taxonomies together for the request

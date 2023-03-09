@@ -1,12 +1,11 @@
 import {Vnode} from 'mithril';
-import app from 'flarum/forum/app';
 import Component, {ComponentAttrs} from 'flarum/common/Component';
-import {ApiPayloadPlural} from 'flarum/common/Store';
 import Button from 'flarum/common/components/Button';
 import Dropdown from 'flarum/common/components/Dropdown';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Term from '../../common/models/Term';
 import Taxonomy from '../../common/models/Taxonomy';
+import retrieveTerms from '../../common/utils/retrieveTerms';
 
 interface TaxonomyDropdownAttrs extends ComponentAttrs {
     taxonomy: Taxonomy
@@ -36,20 +35,9 @@ export default class TaxonomyDropdown extends Component<TaxonomyDropdownAttrs> {
 
         this.termsInitialized = true;
 
-        app.request<ApiPayloadPlural>({
-            method: 'GET',
-            url: app.forum.attribute('apiUrl') + this.attrs.taxonomy.apiTermsEndpoint(),
-        }).then(result => {
-            this.terms = app.store.pushPayload<Term[]>(result);
 
-            this.terms.forEach(term => {
-                term.pushData({
-                    relationships: {
-                        taxonomy: this.attrs.taxonomy,
-                    },
-                });
-            });
-
+        retrieveTerms(this.attrs.taxonomy).then(terms => {
+            this.terms = terms;
             m.redraw();
         });
     }

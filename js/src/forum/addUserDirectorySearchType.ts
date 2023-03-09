@@ -1,11 +1,11 @@
 import app from 'flarum/forum/app';
-import {ApiPayloadPlural} from 'flarum/common/Store';
 import {extend} from 'flarum/common/extend';
 import icon from 'flarum/common/helpers/icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import Taxonomy from '../common/models/Taxonomy';
 import Term from '../common/models/Term';
 import showsFilterFor from './utils/showsFilterFor';
+import retrieveTerms from '../common/utils/retrieveTerms';
 
 export default function () {
     // Verify User Directory is enabled and exports all the classes we need
@@ -70,20 +70,7 @@ export default function () {
             const promises: Promise<void>[] = [];
 
             app.store.all<Taxonomy>('flamarkt-taxonomies').filter(showsFilterFor('users')).forEach(taxonomy => {
-                promises.push(app.request<ApiPayloadPlural>({
-                    method: 'GET',
-                    url: app.forum.attribute('apiUrl') + taxonomy.apiEndpoint() + '/terms',
-                }).then(result => {
-                    const terms = app.store.pushPayload<Term[]>(result);
-
-                    terms.forEach(term => {
-                        term.pushData({
-                            relationships: {
-                                taxonomy,
-                            },
-                        });
-                    });
-
+                promises.push(retrieveTerms(taxonomy).then(terms => {
                     this.allTerms!.push(...terms);
                 }));
             });
