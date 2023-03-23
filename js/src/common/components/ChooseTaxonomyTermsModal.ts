@@ -68,7 +68,7 @@ export default class ChooseTaxonomyTermsModal extends Modal<ChooseTaxonomyTermsM
 
         if (this.attrs.selectedTerms) {
             this.attrs.selectedTerms.forEach(this.addTerm.bind(this));
-        } else if (this.attrs.resource) {
+        } else if (this.attrs.resource && this.attrs.resource.taxonomyTerms()) {
             this.attrs.resource.taxonomyTerms().forEach((term: Term) => {
                 if (term.taxonomy().id() === this.attrs.taxonomy.id()) {
                     this.addTerm(term);
