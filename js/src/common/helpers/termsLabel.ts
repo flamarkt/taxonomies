@@ -8,6 +8,7 @@ export default function termsLabel(terms: Term[], attrs: Attributes = {}) {
     const children: Vnode[] = [];
     const discussionLink = extract(attrs, 'discussionLink');
     const userLink = extract(attrs, 'userLink');
+    const productLink = extract(attrs, 'productLink');
 
     attrs.className = 'TaxonomiesLabel ' + (attrs.className || '');
 
@@ -30,7 +31,7 @@ export default function termsLabel(terms: Term[], attrs: Attributes = {}) {
 
         sortTerms(terms).forEach(tag => {
             if (tag || terms.length === 1) {
-                children.push(termLabel(tag, {discussionLink, userLink}));
+                children.push(termLabel(tag, {discussionLink, userLink, productLink}));
             }
         });
     } else {

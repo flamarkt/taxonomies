@@ -8,6 +8,7 @@ import addFoFDraftsSupport from './addFoFDraftsSupport';
 import addIndexFilters from './addIndexFilters';
 import addLabels from './addLabels';
 import addPages from './addPages';
+import addProductDescription from './addProductDescription';
 import addProductFilters from './addProductFilters';
 import addUserControls from './addUserControls';
 import addModels from '../common/addModels';
@@ -26,6 +27,7 @@ app.initializers.add('flamarkt-taxonomies', () => {
     addIndexFilters();
     addLabels();
     addPages();
+    addProductDescription();
     addProductFilters();
     addUserControls();
     addModels();

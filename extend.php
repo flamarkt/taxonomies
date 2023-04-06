@@ -18,11 +18,16 @@ use Flarum\Discussion\Event\Saving as DiscussionSaving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Extension\ExtensionManager;
 use Flarum\User\Event\Saving as UserSaving;
 use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
+
+$variantsEnabledCallback = function (): bool {
+    return resolve(ExtensionManager::class)->isEnabled('flamarkt-variants');
+};
 
 $extenders = [
     (new Extend\Frontend('admin'))
@@ -141,8 +146,11 @@ $extenders = [
         })
         ->includeInController(FlamarktController\ProductIndexController::class)
         ->includeInController(FlamarktController\ProductShowController::class)
+        ->includeInController(FlamarktController\ProductShowController::class, 'variants.', $variantsEnabledCallback)
         ->includeInController(FlamarktController\ProductStoreController::class)
-        ->includeInController(FlamarktController\ProductUpdateController::class),
+        ->includeInController(FlamarktController\ProductStoreController::class, 'variants.', $variantsEnabledCallback)
+        ->includeInController(FlamarktController\ProductUpdateController::class)
+        ->includeInController(FlamarktController\ProductUpdateController::class, 'variants.', $variantsEnabledCallback),
 
     (new Extend\Filter(DiscussionFilterer::class))
         ->addFilter(Gambits\DiscussionTaxonomyGambit::class),

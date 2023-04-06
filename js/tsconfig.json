@@ -13,6 +13,9 @@
             "flamarkt/backoffice/*": [
                 "../vendor/flamarkt/backoffice/js/dist-typings/*"
             ],
+            "flamarkt/core/*": [
+                "../vendor/flamarkt/core/js/dist-typings/*"
+            ],
             "flarum/tags/*": [
                 "../vendor/flarum/tags/js/dist-typings/*"
             ],

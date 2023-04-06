@@ -12,6 +12,7 @@ export default function termLabel(term: Taxonomy | Term | null = null, attrs: At
 
     const discussionLink = extract(attrs, 'discussionLink');
     const userLink = extract(attrs, 'userLink');
+    const productLink = extract(attrs, 'productLink');
     const tagText = term ? term.name() : app.translator.trans('flarum-tags.lib.deleted_tag_text');
     let tag: any = 'span';
 
@@ -21,19 +22,29 @@ export default function termLabel(term: Taxonomy | Term | null = null, attrs: At
             attrs.style.backgroundColor = attrs.style.color = color;
             attrs.className += ' colored';
         }
+        attrs.title = term.description() || undefined;
+
+        const taxonomy = (term instanceof Term) && term.taxonomy();
 
         // We need to check for instanceof because this method is also used with a taxonomy passed as a value
-        if (term instanceof Term && term.taxonomy() && term.taxonomy().canSearch()) {
+        if (taxonomy && taxonomy.canSearch()) {
+            let href: string | null = null;
+
             if (discussionLink) {
-                attrs.title = term.description() || '';
-                attrs.href = app.route('index', {[term.taxonomy().slug()]: term.slug()});
-                tag = Link;
+                href = app.route('index', {[taxonomy.slug()]: term.slug()});
             }
 
             // Only generate user taxonomy links if fof/user-directory is enabled
             if (userLink && app.routes.fof_user_directory) {
-                attrs.title = term.description() || '';
-                attrs.href = app.route('fof_user_directory', {q: 'taxonomy:' + term.taxonomy().slug() + ':' + term.slug()});
+                href = app.route('fof_user_directory', {q: 'taxonomy:' + taxonomy.slug() + ':' + term.slug()});
+            }
+
+            if (productLink) {
+                href = app.route('flamarkt.products.index', {[taxonomy.slug()]: term.slug()});
+            }
+
+            if (href) {
+                attrs.href = href;
                 tag = Link;
             }
         }

@@ -59,11 +59,13 @@ class TaxonomizeModel implements ExtenderInterface
     /**
      * Add a ::class controller to the list of controllers that should include the terms by default
      * @param string $controller
+     * @param string $prefix Prefix to be added to the relationship name
+     * @param callable|null|string $callback Callback to pass through to the underlying ApiController::addInclude extender
      * @return $this
      */
-    public function includeInController(string $controller): self
+    public function includeInController(string $controller, string $prefix = '', $callback = null): self
     {
-        $this->includeInControllers[] = $controller;
+        $this->includeInControllers[] = [$controller, $prefix, $callback];
 
         return $this;
     }
@@ -96,9 +98,9 @@ class TaxonomizeModel implements ExtenderInterface
             ->extend($container, $extension);
 
         foreach ($this->includeInControllers as $controller) {
-            (new ApiController($controller))
-                ->addInclude('taxonomyTerms')
-                ->addInclude('taxonomyTerms.taxonomy')
+            (new ApiController($controller[0]))
+                ->addInclude($controller[1] . 'taxonomyTerms', $controller[2])
+                ->addInclude($controller[1] . 'taxonomyTerms.taxonomy', $controller[2])
                 ->extend($container, $extension);
         }
 
