@@ -26,6 +26,9 @@ use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 $variantsEnabledCallback = function (): bool {
+    // Note: flamarkt/variants SHOULD NOT be added to the optional-dependencies section of composer.json
+    // As it creates a dependency loop since Variants already lists Taxonomies as a dependency
+    // We'll keep this bit of code in this extension still because it feels more logical
     return resolve(ExtensionManager::class)->isEnabled('flamarkt-variants');
 };
 

@@ -48,7 +48,6 @@
             },
             "optional-dependencies": [
                 "flamarkt/core",
-                "flamarkt/variants",
                 "flarum/tags",
                 "fof/transliterator",
                 "fof/user-directory",
